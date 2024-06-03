@@ -1,2 +1,9 @@
 # Desafio-Final
-Lince Tech Academy
+# 🛣️ Desafio Final - Lince Tech Academy
+
+💭 Propósito do Sistema: <br><br>--- Tem como propósito automatizar e sistematizar o processo de aluguel de veículos na SS Automóveis, permitindo a Saulo, o proprietário, gerenciar eficientemente o cadastro de clientes, gerentes e veículos, realizar e rastrear aluguéis, calcular comissões automaticamente, e gerar comprovantes em PDF. Isso facilita o atendimento inicial, melhora a rastreabilidade das operações e libera tempo para que Saulo se concentre em áreas estratégicas do negócio.
+
+💻Aluna: Letícia de Lima da Cunha
+
+Protótipo das telas: https://miro.com/welcomeonboard/bWc4MVJGM0swVEJWa09ZYks4bVA5QTJjd1BnaVY3OVM4a09Hb2NwMGpWUVNuV0IwaWtoNnZxSXgwdWRkcUo3VXwzNDU4NzY0NTUxMzIzNzQ4OTU0fDI=?share_link_id=298399451062
+

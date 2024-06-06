@@ -1,17 +1,35 @@
 import 'package:flutter/material.dart';
 import 'usuario.dart';
+import 'database.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  bool _showPassword = false;
 
-  void _login(BuildContext context) {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
+      List<Usuario> usuarios = await _dbHelper.getUsuarios();
+      bool isValidUser = usuarios.any((user) =>
+      user.email == _emailController.text &&
+          user.password == _passwordController.text);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login realizado com sucesso!')),
-      );
+      if (isValidUser) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login realizado com sucesso!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Email ou senha incorretos')),
+        );
+      }
     }
   }
 
@@ -74,8 +92,16 @@ class LoginScreen extends StatelessWidget {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _showPassword = !_showPassword;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: !_showPassword,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';
@@ -88,7 +114,7 @@ class LoginScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: () => _login(context),
+                      onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white, backgroundColor: Colors.red,
                         textStyle: TextStyle(
@@ -99,6 +125,19 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text('Login'),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/cadastro');
+                    },
+                    child: Text(
+                      'Não possui conta? Cadastre-se',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ],

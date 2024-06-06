@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'usuario.dart';
+import 'database.dart';
 
 class UserRegistrationScreen extends StatefulWidget {
   @override
@@ -12,8 +13,10 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  bool _showPassword = false;
 
-  void _register() {
+  void _register() async {
     if (_formKey.currentState!.validate()) {
       Usuario newUser = Usuario(
         name: _nameController.text,
@@ -22,10 +25,12 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
         password: _passwordController.text,
       );
 
+      await _dbHelper.saveUsuario(newUser);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Usuário cadastrado com sucesso!')),
       );
+      Navigator.pushNamed(context, '/login');
     }
   }
 
@@ -134,8 +139,16 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                     controller: _passwordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _showPassword = !_showPassword;
+                          });
+                        },
+                      ),
                     ),
-                    obscureText: true,
+                    obscureText: !_showPassword,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor, insira sua senha';

@@ -1,31 +1,35 @@
 class Usuario {
   int? id;
-  String? name;
-  String? lastname;
-  String? email;
-  String? password;
+  String name;
+  String lastname;
+  String email;
+  String password;
 
-  Usuario({this.id, this.name, this.lastname, this.email, this.password});
+  Usuario({
+    this.id,
+    required this.name,
+    required this.lastname,
+    required this.email,
+    required this.password,
+  });
 
   Map<String, dynamic> toMap() {
-    var mapa = <String, dynamic>{
-      'nome': name,
-      'sobrenome': lastname,
-      'email' : email,
-      'senha' : password,
-
+    return {
+      'id': id,
+      'name': name,
+      'lastname': lastname,
+      'email': email,
+      'password': password,
     };
-    if (id != null) {
-      mapa['id'] = id;
-    }
-    return mapa;
   }
 
-  Usuario.fromMap(Map<String, dynamic> mapa) {
-    id = mapa['id'];
-    name = mapa['nome'];
-    lastname = mapa['sobrenome'];
-    email = mapa ['email'];
-    password = mapa ['senha'];
+  factory Usuario.fromMap(Map<String, dynamic> map) {
+    return Usuario(
+      id: map['id'],
+      name: map['name'],
+      lastname: map['lastname'],
+      email: map['email'],
+      password: map['password'],
+    );
   }
 }

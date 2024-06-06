@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Cadastro.dart';
-import 'Login.dart';
+import 'cadastro.dart';
+import 'login.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: UserRegistrationScreen(),
+      initialRoute: '/login',
       routes: {
+        '/cadastro': (context) => UserRegistrationScreen(),
         '/login': (context) => LoginScreen(),
       },
     );

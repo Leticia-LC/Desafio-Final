@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
-import 'usuario.dart';
-import 'database.dart';
+import '../Model/Database.dart';
+import '../Model/Usuario.dart';
 
-class LoginScreen extends StatefulWidget {
+class UserRegistrationScreen extends StatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _UserRegistrationScreenState createState() => _UserRegistrationScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   bool _showPassword = false;
 
-  void _login() async {
+  void _register() async {
     if (_formKey.currentState!.validate()) {
-      List<Usuario> usuarios = await _dbHelper.getUsuarios();
-      bool isValidUser = usuarios.any((user) =>
-      user.email == _emailController.text &&
-          user.password == _passwordController.text);
+      Usuario newUser = Usuario(
+        name: _nameController.text,
+        lastname: _lastnameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-      if (isValidUser) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login realizado com sucesso!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Email ou senha incorretos')),
-        );
-      }
+      await _dbHelper.saveUsuario(newUser);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Usuário cadastrado com sucesso!')),
+      );
+      Navigator.pushNamed(context, '/login');
     }
   }
 
@@ -41,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
         title: Text(
-          'Login',
+          'Cadastro',
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -55,6 +56,52 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Nome',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, insira seu nome';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Sobrenome',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  TextFormField(
+                    controller: _lastnameController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor, insira seu sobrenome';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -114,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _register,
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white, backgroundColor: Colors.red,
                         textStyle: TextStyle(
@@ -124,16 +171,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.zero,
                         ),
                       ),
-                      child: Text('Login'),
+                      child: Text('Cadastrar'),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/cadastro');
+                      Navigator.pushNamed(context, '/login');
                     },
                     child: Text(
-                      'Não possui conta? Cadastre-se',
+                      'Já possui cadastro? Fazer login',
                       style: TextStyle(
                         color: Colors.blue,
                         decoration: TextDecoration.underline,

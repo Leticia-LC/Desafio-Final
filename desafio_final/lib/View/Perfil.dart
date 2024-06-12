@@ -1,37 +1,72 @@
 import 'package:flutter/material.dart';
-import 'usuario.dart';
-import 'database.dart';
+import '../Model/Database.dart';
+import '../Model/Usuario.dart';
 
-class UserRegistrationScreen extends StatefulWidget {
+class ProfileScreen extends StatefulWidget {
+  final Usuario usuario;
+
+  ProfileScreen({required this.usuario});
+
   @override
-  _UserRegistrationScreenState createState() => _UserRegistrationScreenState();
+  _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
+class _ProfileScreenState extends State<ProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _lastnameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  late TextEditingController _nameController;
+  late TextEditingController _lastnameController;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+
   bool _showPassword = false;
 
-  void _register() async {
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.usuario.name);
+    _lastnameController = TextEditingController(text: widget.usuario.lastname);
+    _emailController = TextEditingController(text: widget.usuario.email);
+    _passwordController = TextEditingController(text: widget.usuario.password);
+  }
+
+  void _updateProfile() async {
     if (_formKey.currentState!.validate()) {
-      Usuario newUser = Usuario(
+      Usuario updatedUser = Usuario(
+        id: widget.usuario.id,
         name: _nameController.text,
         lastname: _lastnameController.text,
         email: _emailController.text,
         password: _passwordController.text,
       );
 
-      await _dbHelper.saveUsuario(newUser);
+      await _dbHelper.updateUsuario(updatedUser);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Usuário cadastrado com sucesso!')),
+        SnackBar(content: Text('Perfil atualizado com sucesso!')),
       );
-      Navigator.pushNamed(context, '/login');
     }
+  }
+
+  void _deleteAccount() async {
+    if (widget.usuario.id != null) {
+      await _dbHelper.deleteUsuario(widget.usuario.id!);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Conta deletada com sucesso!')),
+      );
+
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao deletar conta: ID inválido')),
+      );
+    }
+  }
+
+  void _changeTheme(ThemeMode themeMode) {
+
   }
 
   @override
@@ -42,7 +77,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
         title: Text(
-          'Cadastro',
+          'Perfil',
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -161,7 +196,25 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _register,
+                      onPressed: _updateProfile,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: Colors.blue,
+                        textStyle: TextStyle(
+                          fontSize: 15,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.zero,
+                        ),
+                      ),
+                      child: Text('Atualizar Perfil'),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _deleteAccount,
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white, backgroundColor: Colors.red,
                         textStyle: TextStyle(
@@ -171,20 +224,48 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                           borderRadius: BorderRadius.zero,
                         ),
                       ),
-                      child: Text('Cadastrar'),
+                      child: Text('Deletar Conta'),
                     ),
                   ),
-                  SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: Text(
-                      'Já possui cadastro? Fazer login',
+                      'Tema',
                       style: TextStyle(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Claro'),
+                    leading: Radio(
+                      value: ThemeMode.light,
+                      groupValue: ThemeMode.system,
+                      onChanged: (ThemeMode? value) {
+                        _changeTheme(value!);
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Escuro'),
+                    leading: Radio(
+                      value: ThemeMode.dark,
+                      groupValue: ThemeMode.system,
+                      onChanged: (ThemeMode? value) {
+                        _changeTheme(value!);
+                      },
+                    ),
+                  ),
+                  ListTile(
+                    title: Text('Automático'),
+                    leading: Radio(
+                      value: ThemeMode.system,
+                      groupValue: ThemeMode.system,
+                      onChanged: (ThemeMode? value) {
+                        _changeTheme(value!);
+                      },
                     ),
                   ),
                 ],

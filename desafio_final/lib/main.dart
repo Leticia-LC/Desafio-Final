@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'cadastro.dart';
-import 'login.dart';
+import 'View/Cadastro.dart';
+import 'View/Login.dart';
 
 void main() {
   runApp(MyApp());

@@ -66,7 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _changeTheme(ThemeMode themeMode) {
-
+    // Implementar mudança de tema
   }
 
   @override

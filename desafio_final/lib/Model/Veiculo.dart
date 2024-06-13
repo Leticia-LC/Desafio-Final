@@ -3,7 +3,7 @@ class Veiculo {
   String modelo;
   String placa;
   int anoFabricaco;
-  String custo;
+  int custo;
 
   Veiculo({
     required this.marca,

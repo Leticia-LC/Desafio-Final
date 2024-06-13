@@ -3,6 +3,8 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Usuario.dart';
 import 'Cliente.dart';
+import 'Gerente.dart';
+import 'Veiculo.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
@@ -46,6 +48,26 @@ class DatabaseHelper {
         clientPhoneNumber INTEGER,
         city TEXT,
         clientState TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE Gerente(
+        cpf TEXT PRIMARY KEY,
+        managerName TEXT,
+        managerState TEXT,
+        managerphoneNumber TEXT,
+        percentage INTEGER
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE Veiculo(
+        placa TEXT PRIMARY KEY,
+        marca TEXT,
+        modelo TEXT,
+        anoFabricaco INTEGER,
+        custo INTEGER
       )
     ''');
   }
@@ -100,6 +122,58 @@ class DatabaseHelper {
   Future<int> updateCliente(Cliente cliente) async {
     var dbClient = await db;
     return await dbClient.update('Cliente', cliente.toMap(), where: 'cnpj = ?', whereArgs: [cliente.cnpj]);
+  }
+
+  // Operações para Gerente
+  Future<int> saveGerente(Gerente gerente) async {
+    var dbClient = await db;
+    return await dbClient.insert('Gerente', gerente.toMap());
+  }
+
+  Future<List<Gerente>> getGerentes() async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient.query('Gerente', columns: ['cpf', 'managerName', 'managerState', 'managerphoneNumber', 'percentage']);
+    List<Gerente> gerentes = [];
+    for (var map in maps) {
+      gerentes.add(Gerente.fromMap(map as Map<String, dynamic>));
+    }
+    return gerentes;
+  }
+
+  Future<int> deleteGerente(String cpf) async {
+    var dbClient = await db;
+    return await dbClient.delete('Gerente', where: 'cpf = ?', whereArgs: [cpf]);
+  }
+
+  Future<int> updateGerente(Gerente gerente) async {
+    var dbClient = await db;
+    return await dbClient.update('Gerente', gerente.toMap(), where: 'cpf = ?', whereArgs: [gerente.cpf]);
+  }
+
+  // Operações para Veículo
+  Future<int> saveVeiculo(Veiculo veiculo) async {
+    var dbClient = await db;
+    return await dbClient.insert('Veiculo', veiculo.toMap());
+  }
+
+  Future<List<Veiculo>> getVeiculos() async {
+    var dbClient = await db;
+    List<Map> maps = await dbClient.query('Veiculo', columns: ['placa', 'marca', 'modelo', 'anoFabricaco', 'custo']);
+    List<Veiculo> veiculos = [];
+    for (var map in maps) {
+      veiculos.add(Veiculo.fromMap(map as Map<String, dynamic>));
+    }
+    return veiculos;
+  }
+
+  Future<int> deleteVeiculo(String placa) async {
+    var dbClient = await db;
+    return await dbClient.delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
+  }
+
+  Future<int> updateVeiculo(Veiculo veiculo) async {
+    var dbClient = await db;
+    return await dbClient.update('Veiculo', veiculo.toMap(), where: 'placa = ?', whereArgs: [veiculo.placa]);
   }
 
   Future close() async {

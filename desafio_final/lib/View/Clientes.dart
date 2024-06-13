@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
+import '../Model/Database.dart';
+import '../Model/Cliente.dart';
 import 'cadastro_clientes.dart';
 
-class ClientesScreen extends StatelessWidget {
+class ClientesScreen extends StatefulWidget {
+  @override
+  _ClientesScreenState createState() => _ClientesScreenState();
+}
+
+class _ClientesScreenState extends State<ClientesScreen> {
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  Future<List<Cliente>> _fetchClientes() async {
+    return await _dbHelper.getClientes();
+  }
+
+  void _deleteCliente(String cnpj) async {
+    await _dbHelper.deleteCliente(cnpj);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,31 +29,99 @@ class ClientesScreen extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.black),
         title: Text('Clientes', style: TextStyle(color: Colors.black)),
       ),
-      body: Stack(
-        children: [
-          Center(
-            child: Text('Listagem de Clientes'),
-          ),
-          Positioned(
-            bottom: 60,
-            right: 30,
-            child: Container(
-              width: 70,
-              height: 70,
-              child: FloatingActionButton(
-                heroTag: null,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CadastroClientesScreen()),
-                  );
-                },
-                backgroundColor: Colors.red,
-                child: Icon(Icons.add, color: Colors.white),
-              ),
-            ),
-          ),
-        ],
+      body: FutureBuilder<List<Cliente>>(
+        future: _fetchClientes(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erro ao carregar os clientes'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Nenhum cliente cadastrado'));
+          } else {
+            return ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                final cliente = snapshot.data![index];
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Nome: ${cliente.clientName}',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 8.0),
+                            Text('Telefone: ${cliente.clientPhoneNumber}'),
+                            SizedBox(height: 8.0),
+                            Text('CNPJ: ${cliente.cnpj}'),
+                            SizedBox(height: 8.0),
+                            Text('Cidade: ${cliente.city}'),
+                            SizedBox(height: 8.0),
+                            Text('Estado: ${cliente.clientState}'),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Deseja deletar cliente?'),
+                                content: Text('Tem certeza que deseja deletar o cliente ${cliente.clientName}?'),
+                                actions: [
+                                  TextButton(
+                                    child: Text('Não'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: Text('Sim'),
+                                    onPressed: () {
+                                      _deleteCliente(cliente.cnpj);
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          bool? clienteCadastrado = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CadastroClientesScreen()),
+          );
+          if (clienteCadastrado == true) {
+            setState(() {});
+          }
+        },
+        backgroundColor: Colors.red,
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

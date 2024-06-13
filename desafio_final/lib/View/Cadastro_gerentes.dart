@@ -1,59 +1,59 @@
 import 'package:flutter/material.dart';
 import '../Model/Database.dart';
-import '../Model/Cliente.dart';
+import '../Model/Gerente.dart';
 
-class CadastroClientesScreen extends StatefulWidget {
+class CadastroGerentesScreen extends StatefulWidget {
   @override
-  _CadastroClienteScreenState createState() => _CadastroClienteScreenState();
+  _CadastroGerenteScreenState createState() => _CadastroGerenteScreenState();
 }
 
-class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
+class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  late TextEditingController _clientNameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _cnpjController;
-  late TextEditingController _cityController;
-  late TextEditingController _stateController;
+  late TextEditingController _managerNameController;
+  late TextEditingController _cpfController;
+  late TextEditingController _managerStateController;
+  late TextEditingController _managerPhoneNumberController;
+  late TextEditingController _percentageController;
 
   @override
   void initState() {
     super.initState();
-    _clientNameController = TextEditingController();
-    _phoneController = TextEditingController();
-    _cnpjController = TextEditingController();
-    _cityController = TextEditingController();
-    _stateController = TextEditingController();
+    _managerNameController = TextEditingController();
+    _cpfController = TextEditingController();
+    _managerStateController = TextEditingController();
+    _managerPhoneNumberController = TextEditingController();
+    _percentageController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _clientNameController.dispose();
-    _phoneController.dispose();
-    _cnpjController.dispose();
-    _cityController.dispose();
-    _stateController.dispose();
+    _managerNameController.dispose();
+    _cpfController.dispose();
+    _managerStateController.dispose();
+    _managerPhoneNumberController.dispose();
+    _percentageController.dispose();
     super.dispose();
   }
 
-  void _saveCliente() async {
+  void _saveGerente() async {
     if (_formKey.currentState!.validate()) {
-      Cliente cliente = Cliente(
-        clientName: _clientNameController.text,
-        clientPhoneNumber: int.parse(_phoneController.text),
-        cnpj: _cnpjController.text,
-        city: _cityController.text,
-        clientState: _stateController.text,
+      Gerente gerente = Gerente(
+        managerName: _managerNameController.text,
+        cpf: int.parse(_cpfController.text),
+        managerState: _managerStateController.text,
+        managerphoneNumber: _managerPhoneNumberController.text,
+        percentage: int.parse(_percentageController.text),
       );
 
-      await _dbHelper.saveCliente(cliente);
+      await _dbHelper.saveGerente(gerente);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cliente cadastrado com sucesso!')),
+        SnackBar(content: Text('Gerente cadastrado com sucesso!')),
       );
 
-      Navigator.pop(context, true);
+      Navigator.pop(context);
     }
   }
 
@@ -63,7 +63,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Cadastro de Cliente'),
+        title: Text('Cadastro de Gerente'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -81,75 +81,34 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                   ),
                 ),
                 TextFormField(
-                  controller: _clientNameController,
+                  controller: _managerNameController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o nome do cliente';
+                      return 'Por favor, insira o nome do gerente';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 10),
                 Text(
-                  'Telefone',
+                  'CPF',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
                 ),
                 TextFormField(
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o telefone do cliente';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'CNPJ',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                TextFormField(
-                  controller: _cnpjController,
+                  controller: _cpfController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o CNPJ do cliente';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Cidade',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                TextFormField(
-                  controller: _cityController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira a cidade do cliente';
+                      return 'Por favor, insira o CPF do gerente';
                     }
                     return null;
                   },
@@ -163,13 +122,55 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                   ),
                 ),
                 TextFormField(
-                  controller: _stateController,
+                  controller: _managerStateController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o estado do cliente';
+                      return 'Por favor, insira o estado do gerente';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Telefone',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                TextFormField(
+                  controller: _managerPhoneNumberController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira o telefone do gerente';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Percentual de Comissão',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                TextFormField(
+                  controller: _percentageController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor, insira o percentual de comissão do gerente';
                     }
                     return null;
                   },
@@ -179,7 +180,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: _saveCliente,
+                    onPressed: _saveGerente,
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
                       backgroundColor: Colors.red,

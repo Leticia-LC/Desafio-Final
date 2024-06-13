@@ -1,23 +1,23 @@
 class Cliente {
+  String cnpj;
   String clientName;
   int clientPhoneNumber;
-  int cnpj;
   String city;
   String clientState;
 
   Cliente({
+    required this.cnpj,
     required this.clientName,
     required this.clientPhoneNumber,
-    required this.cnpj,
     required this.city,
     required this.clientState,
   });
 
   Map<String, dynamic> toMap() {
     return {
+      'cnpj': cnpj,
       'clientName': clientName,
       'clientPhoneNumber': clientPhoneNumber,
-      'cnpj': cnpj,
       'city': city,
       'clientState': clientState,
     };
@@ -25,9 +25,9 @@ class Cliente {
 
   factory Cliente.fromMap(Map<String, dynamic> map) {
     return Cliente(
+      cnpj: map['cnpj'],
       clientName: map['clientName'],
       clientPhoneNumber: map['clientPhoneNumber'],
-      cnpj: map['cnpj'],
       city: map['city'],
       clientState: map['clientState'],
     );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../Controller/Theme_provider.dart'; // Importe conforme o caminho real do seu ThemeProvider
-import '../Model/Database.dart'; // Importe conforme o caminho real do seu DatabaseHelper
-import '../Model/Usuario.dart'; // Importe conforme o caminho real do seu modelo de Usuario
+import '../Controller/Theme_provider.dart';
+import '../Model/Database.dart';
+import '../Model/Usuario.dart';
 import 'Login.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -28,6 +28,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _initializeControllers();
+  }
+
+  void _initializeControllers() {
     _nameController = TextEditingController(text: widget.usuario.name);
     _lastnameController = TextEditingController(text: widget.usuario.lastname);
     _emailController = TextEditingController(text: widget.usuario.email);
@@ -49,6 +53,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Perfil atualizado com sucesso!')),
       );
+
+      setState(() {
+        widget.usuario.name = _nameController.text;
+        widget.usuario.lastname = _lastnameController.text;
+        widget.usuario.email = _emailController.text;
+        widget.usuario.password = _passwordController.text;
+      });
     }
   }
 
@@ -60,7 +71,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SnackBar(content: Text('Conta deletada com sucesso!')),
       );
 
-      Navigator.pop(context);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+            (Route<dynamic> route) => false,
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao deletar conta: ID inválido')),
@@ -69,20 +84,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _changeTheme(ThemeMode themeMode) {
-    // Implementar mudança de tema
+    context.read<ThemeProvider>().setTheme(themeMode);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Text(
-          'Perfil',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: Text('Perfil'),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -94,20 +103,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Nome',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      labelText: 'Nome',
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -117,20 +117,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Sobrenome',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
                   TextFormField(
                     controller: _lastnameController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      labelText: 'Sobrenome',
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -140,20 +131,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Email',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      labelText: 'Email',
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -163,20 +145,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                   SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Senha',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      labelText: 'Senha',
                       suffixIcon: IconButton(
                         icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
                         onPressed: () {
@@ -201,10 +174,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: ElevatedButton(
                       onPressed: _updateProfile,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: Colors.blue,
-                        textStyle: TextStyle(
-                          fontSize: 15,
-                        ),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
+                        textStyle: TextStyle(fontSize: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
                         ),
@@ -219,10 +191,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: ElevatedButton(
                       onPressed: _deleteAccount,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: Colors.red,
-                        textStyle: TextStyle(
-                          fontSize: 15,
-                        ),
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
+                        textStyle: TextStyle(fontSize: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.zero,
                         ),
@@ -230,46 +201,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Text('Deletar Conta'),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Tema',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Tema',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
                     ),
                   ),
-                  ListTile(
-                    title: Text('Claro'),
-                    leading: Radio(
-                      value: ThemeMode.light,
-                      groupValue: ThemeMode.system,
-                      onChanged: (ThemeMode? value) {
-                        _changeTheme(value!);
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    title: Text('Escuro'),
-                    leading: Radio(
-                      value: ThemeMode.dark,
-                      groupValue: ThemeMode.system,
-                      onChanged: (ThemeMode? value) {
-                        _changeTheme(value!);
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    title: Text('Automático'),
-                    leading: Radio(
-                      value: ThemeMode.system,
-                      groupValue: ThemeMode.system,
-                      onChanged: (ThemeMode? value) {
-                        _changeTheme(value!);
-                      },
-                    ),
+                  Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, child) {
+                      return Column(
+                        children: [
+                          ListTile(
+                            title: Text('Claro'),
+                            leading: Radio(
+                              value: ThemeMode.light,
+                              groupValue: themeProvider.themeMode,
+                              onChanged: (ThemeMode? value) {
+                                if (value != null) {
+                                  _changeTheme(value);
+                                }
+                              },
+                            ),
+                          ),
+                          ListTile(
+                            title: Text('Escuro'),
+                            leading: Radio(
+                              value: ThemeMode.dark,
+                              groupValue: themeProvider.themeMode,
+                              onChanged: (ThemeMode? value) {
+                                if (value != null) {
+                                  _changeTheme(value);
+                                }
+                              },
+                            ),
+                          ),
+                          ListTile(
+                            title: Text('Automático'),
+                            leading: Radio(
+                              value: ThemeMode.system,
+                              groupValue: themeProvider.themeMode,
+                              onChanged: (ThemeMode? value) {
+                                if (value != null) {
+                                  _changeTheme(value);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),

@@ -66,7 +66,7 @@ class DatabaseHelper {
         placa TEXT PRIMARY KEY,
         marca TEXT,
         modelo TEXT,
-        anoFabricaco INTEGER,
+        anoFabricacao INTEGER,
         custo INTEGER
       )
     ''');
@@ -80,7 +80,8 @@ class DatabaseHelper {
 
   Future<List<Usuario>> getUsuarios() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Usuario', columns: ['id', 'name', 'lastname', 'email', 'password']);
+    List<Map> maps = await dbClient.query(
+        'Usuario', columns: ['id', 'name', 'lastname', 'email', 'password']);
     List<Usuario> usuarios = [];
     for (var map in maps) {
       usuarios.add(Usuario.fromMap(map as Map<String, dynamic>));
@@ -95,7 +96,8 @@ class DatabaseHelper {
 
   Future<int> updateUsuario(Usuario usuario) async {
     var dbClient = await db;
-    return await dbClient.update('Usuario', usuario.toMap(), where: 'id = ?', whereArgs: [usuario.id]);
+    return await dbClient.update(
+        'Usuario', usuario.toMap(), where: 'id = ?', whereArgs: [usuario.id]);
   }
 
   // Operações para Cliente
@@ -106,7 +108,13 @@ class DatabaseHelper {
 
   Future<List<Cliente>> getClientes() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Cliente', columns: ['cnpj', 'clientName', 'clientPhoneNumber', 'city', 'clientState']);
+    List<Map> maps = await dbClient.query('Cliente', columns: [
+      'cnpj',
+      'clientName',
+      'clientPhoneNumber',
+      'city',
+      'clientState'
+    ]);
     List<Cliente> clientes = [];
     for (var map in maps) {
       clientes.add(Cliente.fromMap(map as Map<String, dynamic>));
@@ -116,12 +124,14 @@ class DatabaseHelper {
 
   Future<int> deleteCliente(String cnpj) async {
     var dbClient = await db;
-    return await dbClient.delete('Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
+    return await dbClient.delete(
+        'Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
   }
 
   Future<int> updateCliente(Cliente cliente) async {
     var dbClient = await db;
-    return await dbClient.update('Cliente', cliente.toMap(), where: 'cnpj = ?', whereArgs: [cliente.cnpj]);
+    return await dbClient.update('Cliente', cliente.toMap(), where: 'cnpj = ?',
+        whereArgs: [cliente.cnpj]);
   }
 
   // Operações para Gerente
@@ -132,7 +142,13 @@ class DatabaseHelper {
 
   Future<List<Gerente>> getGerentes() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Gerente', columns: ['cpf', 'managerName', 'managerState', 'managerphoneNumber', 'percentage']);
+    List<Map> maps = await dbClient.query('Gerente', columns: [
+      'cpf',
+      'managerName',
+      'managerState',
+      'managerphoneNumber',
+      'percentage'
+    ]);
     List<Gerente> gerentes = [];
     for (var map in maps) {
       gerentes.add(Gerente.fromMap(map as Map<String, dynamic>));
@@ -147,7 +163,8 @@ class DatabaseHelper {
 
   Future<int> updateGerente(Gerente gerente) async {
     var dbClient = await db;
-    return await dbClient.update('Gerente', gerente.toMap(), where: 'cpf = ?', whereArgs: [gerente.cpf]);
+    return await dbClient.update(
+        'Gerente', gerente.toMap(), where: 'cpf = ?', whereArgs: [gerente.cpf]);
   }
 
   // Operações para Veículo
@@ -158,7 +175,8 @@ class DatabaseHelper {
 
   Future<List<Veiculo>> getVeiculos() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Veiculo', columns: ['placa', 'marca', 'modelo', 'anoFabricaco', 'custo']);
+    List<Map> maps = await dbClient.query('Veiculo',
+        columns: ['placa', 'marca', 'modelo', 'anoFabricacao', 'custo']);
     List<Veiculo> veiculos = [];
     for (var map in maps) {
       veiculos.add(Veiculo.fromMap(map as Map<String, dynamic>));
@@ -168,16 +186,13 @@ class DatabaseHelper {
 
   Future<int> deleteVeiculo(String placa) async {
     var dbClient = await db;
-    return await dbClient.delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
+    return await dbClient.delete(
+        'Veiculo', where: 'placa = ?', whereArgs: [placa]);
   }
 
   Future<int> updateVeiculo(Veiculo veiculo) async {
     var dbClient = await db;
-    return await dbClient.update('Veiculo', veiculo.toMap(), where: 'placa = ?', whereArgs: [veiculo.placa]);
-  }
-
-  Future close() async {
-    var dbClient = await db;
-    return dbClient.close();
+    return await dbClient.update('Veiculo', veiculo.toMap(), where: 'placa = ?',
+        whereArgs: [veiculo.placa]);
   }
 }

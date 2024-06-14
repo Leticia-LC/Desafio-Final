@@ -2,14 +2,14 @@ class Veiculo {
   String marca;
   String modelo;
   String placa;
-  int anoFabricaco;
+  int anoFabricacao;
   int custo;
 
   Veiculo({
     required this.marca,
     required this.modelo,
     required this.placa,
-    required this.anoFabricaco,
+    required this.anoFabricacao,
     required this.custo,
   });
 
@@ -18,7 +18,7 @@ class Veiculo {
       'marca': marca,
       'modelo': modelo,
       'placa': placa,
-      'anoFabricaco': anoFabricaco,
+      'anoFabricacao': anoFabricacao,
       'custo': custo,
     };
   }
@@ -28,7 +28,7 @@ class Veiculo {
       marca: map['marca'],
       modelo: map['modelo'],
       placa: map['placa'],
-      anoFabricaco: map['anoFabricaco'],
+      anoFabricacao: map['anoFabricacao'],
       custo: map['custo'],
     );
   }

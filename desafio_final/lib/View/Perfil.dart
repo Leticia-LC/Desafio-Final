@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../Model/Database.dart';
-import '../Model/Usuario.dart';
+import 'package:provider/provider.dart';
+import '../Controller/Theme_provider.dart'; // Importe conforme o caminho real do seu ThemeProvider
+import '../Model/Database.dart'; // Importe conforme o caminho real do seu DatabaseHelper
+import '../Model/Usuario.dart'; // Importe conforme o caminho real do seu modelo de Usuario
+import 'Login.dart';
 
 class ProfileScreen extends StatefulWidget {
   final Usuario usuario;

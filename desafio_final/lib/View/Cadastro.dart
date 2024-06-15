@@ -69,6 +69,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                   TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
+                      hintText: "nome",
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -92,6 +93,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                   TextFormField(
                     controller: _lastnameController,
                     decoration: InputDecoration(
+                      hintText: "sobrenome",
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -115,6 +117,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
+                      hintText: "exemplo@gmail.com",
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -138,6 +141,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
+                      hintText: "...........",
                       border: OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),

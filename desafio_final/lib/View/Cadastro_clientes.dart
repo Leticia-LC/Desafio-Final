@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../Model/Database.dart';
 import '../Model/Cliente.dart';
 
@@ -39,9 +40,27 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
 
   void _saveCliente() async {
     if (_formKey.currentState!.validate()) {
+      final number = _phoneController.text
+          .replaceAll(
+            '(',
+            '',
+          )
+          .replaceAll(
+            ')',
+            '',
+          )
+          .replaceAll(
+            '-',
+            '',
+          )
+          .replaceAll(
+            ' ',
+            '',
+          );
+
       Cliente cliente = Cliente(
         clientName: _clientNameController.text,
-        clientPhoneNumber: int.parse(_phoneController.text),
+        clientPhoneNumber: int.parse(number),
         cnpj: _cnpjController.text,
         city: _cityController.text,
         clientState: _stateController.text,
@@ -50,7 +69,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
       await _dbHelper.saveCliente(cliente);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cliente cadastrado com sucesso!')),
+        const SnackBar(content: Text('Cliente cadastrado com sucesso!')),
       );
 
       Navigator.pop(context, true);
@@ -83,6 +102,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                 TextFormField(
                   controller: _clientNameController,
                   decoration: InputDecoration(
+                    hintText: "nome",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -103,6 +123,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                 TextFormField(
                   controller: _phoneController,
                   decoration: InputDecoration(
+                    hintText: "(00) 00000-0000",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.phone,
@@ -112,6 +133,9 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                     }
                     return null;
                   },
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '(##) #####-####'),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -124,6 +148,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                 TextFormField(
                   controller: _cnpjController,
                   decoration: InputDecoration(
+                    hintText: "00.000.000/0001-00",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -133,6 +158,9 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                     }
                     return null;
                   },
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '##.###.###/####-##'),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -145,6 +173,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                 TextFormField(
                   controller: _cityController,
                   decoration: InputDecoration(
+                    hintText: "cidade",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -165,6 +194,7 @@ class _CadastroClienteScreenState extends State<CadastroClientesScreen> {
                 TextFormField(
                   controller: _stateController,
                   decoration: InputDecoration(
+                    hintText: "estado",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {

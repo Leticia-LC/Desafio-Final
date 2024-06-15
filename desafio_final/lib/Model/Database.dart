@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'Aluguel.dart';
 import 'Usuario.dart';
 import 'Cliente.dart';
 import 'Gerente.dart';
@@ -70,6 +71,17 @@ class DatabaseHelper {
         custo INTEGER
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE Aluguel(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cliente TEXT,
+        dataInicio INTEGER,
+        dataTermino INTEGER,
+        numeroDias INTEGER,
+        valorTotal INTEGER
+      )
+    ''');
   }
 
   // Operações para Usuário
@@ -80,8 +92,8 @@ class DatabaseHelper {
 
   Future<List<Usuario>> getUsuarios() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query(
-        'Usuario', columns: ['id', 'name', 'lastname', 'email', 'password']);
+    List<Map> maps = await dbClient.query('Usuario',
+        columns: ['id', 'name', 'lastname', 'email', 'password']);
     List<Usuario> usuarios = [];
     for (var map in maps) {
       usuarios.add(Usuario.fromMap(map as Map<String, dynamic>));
@@ -96,8 +108,8 @@ class DatabaseHelper {
 
   Future<int> updateUsuario(Usuario usuario) async {
     var dbClient = await db;
-    return await dbClient.update(
-        'Usuario', usuario.toMap(), where: 'id = ?', whereArgs: [usuario.id]);
+    return await dbClient.update('Usuario', usuario.toMap(),
+        where: 'id = ?', whereArgs: [usuario.id]);
   }
 
   // Operações para Cliente
@@ -124,14 +136,14 @@ class DatabaseHelper {
 
   Future<int> deleteCliente(String cnpj) async {
     var dbClient = await db;
-    return await dbClient.delete(
-        'Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
+    return await dbClient
+        .delete('Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
   }
 
   Future<int> updateCliente(Cliente cliente) async {
     var dbClient = await db;
-    return await dbClient.update('Cliente', cliente.toMap(), where: 'cnpj = ?',
-        whereArgs: [cliente.cnpj]);
+    return await dbClient.update('Cliente', cliente.toMap(),
+        where: 'cnpj = ?', whereArgs: [cliente.cnpj]);
   }
 
   // Operações para Gerente
@@ -163,8 +175,8 @@ class DatabaseHelper {
 
   Future<int> updateGerente(Gerente gerente) async {
     var dbClient = await db;
-    return await dbClient.update(
-        'Gerente', gerente.toMap(), where: 'cpf = ?', whereArgs: [gerente.cpf]);
+    return await dbClient.update('Gerente', gerente.toMap(),
+        where: 'cpf = ?', whereArgs: [gerente.cpf]);
   }
 
   // Operações para Veículo
@@ -186,13 +198,48 @@ class DatabaseHelper {
 
   Future<int> deleteVeiculo(String placa) async {
     var dbClient = await db;
-    return await dbClient.delete(
-        'Veiculo', where: 'placa = ?', whereArgs: [placa]);
+    return await dbClient
+        .delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
   }
 
   Future<int> updateVeiculo(Veiculo veiculo) async {
     var dbClient = await db;
-    return await dbClient.update('Veiculo', veiculo.toMap(), where: 'placa = ?',
-        whereArgs: [veiculo.placa]);
+    return await dbClient.update('Veiculo', veiculo.toMap(),
+        where: 'placa = ?', whereArgs: [veiculo.placa]);
+  }
+
+  //Operações para Aluguel
+  Future<int> saveAlugueis(Aluguel aluguel) async {
+    var dbAluguel = await db;
+    return await dbAluguel.insert('Aluguel', aluguel.toMap());
+  }
+
+  Future<List<Aluguel>> getAlugueis() async {
+    var dbAluguel = await db;
+    List<Map> maps = await dbAluguel.query('Aluguel', columns: [
+      'cliente',
+      'dataInicio',
+      'dataTermino',
+      'numeroDias',
+      'valorTotal'
+    ]);
+    List<Aluguel> alugueis = [];
+    for (var map in maps) {
+      alugueis.add(Aluguel.fromMap(map as Map<String, dynamic>));
+    }
+    return alugueis;
+  }
+
+  Future<int> deleteAlugueis(Aluguel aluguel) async {
+    var dbAluguel = await db;
+    return await dbAluguel
+        .delete('Aluguel', where: 'id = ?', whereArgs: [aluguel]);
+  }
+
+  Future<int> updateAluguel(Aluguel aluguel) async {
+    var dbAluguel = await db;
+    return await dbAluguel.update('Aluguel', aluguel.toMap(),
+       where: 'aluguel = ?', whereArgs: [aluguel.id]);
+
   }
 }

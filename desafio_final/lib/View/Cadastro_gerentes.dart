@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../Model/Database.dart';
 import '../Model/Gerente.dart';
 
@@ -83,6 +84,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 TextFormField(
                   controller: _managerNameController,
                   decoration: InputDecoration(
+                    hintText: "nome",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -103,6 +105,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 TextFormField(
                   controller: _cpfController,
                   decoration: InputDecoration(
+                    hintText: "000.000.000-00",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -112,6 +115,9 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                     }
                     return null;
                   },
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '###.###.###-##'),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -124,6 +130,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 TextFormField(
                   controller: _managerStateController,
                   decoration: InputDecoration(
+                    hintText: "estado",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -144,6 +151,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 TextFormField(
                   controller: _managerPhoneNumberController,
                   decoration: InputDecoration(
+                    hintText: "(00) 00000-0000",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.phone,
@@ -153,6 +161,9 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                     }
                     return null;
                   },
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '(##) #####-####'),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Text(

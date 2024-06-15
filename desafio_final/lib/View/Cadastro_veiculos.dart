@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../Model/Database.dart';
 import '../Model/Veiculo.dart';
 
@@ -83,6 +84,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                 TextFormField(
                   controller: _marcaController,
                   decoration: InputDecoration(
+                    hintText: "marca",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -103,6 +105,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                 TextFormField(
                   controller: _modeloController,
                   decoration: InputDecoration(
+                    hintText: "modelo",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -123,6 +126,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                 TextFormField(
                   controller: _placaController,
                   decoration: InputDecoration(
+                    hintText: "XXX-0000",
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
@@ -131,6 +135,9 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                     }
                     return null;
                   },
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '###-####'),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -143,6 +150,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                 TextFormField(
                   controller: _anoFabricacaoController,
                   decoration: InputDecoration(
+                    hintText: "0000",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -152,6 +160,9 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                     }
                     return null;
                   },
+                  inputFormatters: [
+                    MaskTextInputFormatter(mask: '####'),
+                  ],
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -182,7 +193,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                     onPressed: _saveVeiculo,
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.red,
                       textStyle: TextStyle(
                         fontSize: 15,
                       ),

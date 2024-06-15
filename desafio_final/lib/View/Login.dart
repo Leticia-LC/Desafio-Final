@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../Model/Database.dart';
 import '../Model/Usuario.dart';
 import 'Menu.dart';
@@ -69,8 +70,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 0),
                   Image.asset(
                     'assets/logoSS.png',
-                    width: 300,
-                    height: 300,
+                    width: 400,
+                    height: 250,
                   ),
                   SizedBox(height: 20),
                   Align(
@@ -86,6 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
+                      hintText: "exemplo@gmail.com",
                       border: OutlineInputBorder(),
                     ),
                     validator: (value) {
@@ -109,6 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
+                      hintText: "...........",
                       border: OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),

@@ -147,30 +147,25 @@ class DatabaseHelper {
   }
 
   // Operações para Gerente
-  Future<int> saveGerente(Gerente gerente) async {
+  Future<void> saveGerente(Gerente gerente) async {
     var dbClient = await db;
-    return await dbClient.insert('Gerente', gerente.toMap());
+    await dbClient.insert('Gerente', gerente.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Gerente>> getGerentes() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Gerente', columns: [
-      'cpf',
-      'managerName',
-      'managerState',
-      'managerphoneNumber',
-      'percentage'
-    ]);
+    List<Map<String, dynamic>> maps = await dbClient.query('Gerente');
     List<Gerente> gerentes = [];
     for (var map in maps) {
-      gerentes.add(Gerente.fromMap(map as Map<String, dynamic>));
+      gerentes.add(Gerente.fromMap(map));
     }
     return gerentes;
   }
 
-  Future<int> deleteGerente(String cpf) async {
+  Future<void> deleteGerente(String cpf) async {
     var dbClient = await db;
-    return await dbClient.delete('Gerente', where: 'cpf = ?', whereArgs: [cpf]);
+    await dbClient.delete('Gerente', where: 'cpf = ?', whereArgs: [cpf]);
   }
 
   Future<int> updateGerente(Gerente gerente) async {

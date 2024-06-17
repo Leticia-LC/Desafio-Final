@@ -40,9 +40,13 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
 
   void _saveGerente() async {
     if (_formKey.currentState!.validate()) {
+      final cpf = _cpfController.text
+          .replaceAll('.', '')
+          .replaceAll('-', '');
+
       Gerente gerente = Gerente(
         managerName: _managerNameController.text,
-        cpf: int.parse(_cpfController.text),
+        cpf: cpf,  // CPF como String
         managerState: _managerStateController.text,
         managerphoneNumber: _managerPhoneNumberController.text,
         percentage: int.parse(_percentageController.text),
@@ -54,9 +58,11 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
         SnackBar(content: Text('Gerente cadastrado com sucesso!')),
       );
 
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

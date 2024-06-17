@@ -1,6 +1,6 @@
 class Gerente {
   String managerName;
-  int cpf;
+  String cpf;
   String managerState;
   String managerphoneNumber;
   int percentage;

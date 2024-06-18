@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../Model/Database.dart';
 import '../Model/Veiculo.dart';
 
@@ -17,6 +19,16 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
   late TextEditingController _placaController;
   late TextEditingController _anoFabricacaoController;
   late TextEditingController _custoController;
+  File? _image;
+
+  var placaMaskFormatter = MaskTextInputFormatter(
+    mask: 'AAA-####',
+    filter: {
+      "#": RegExp(r'[0-9]'),
+      "A": RegExp(r'[A-Za-z]')
+    },
+    type: MaskAutoCompletionType.lazy,
+  );
 
   @override
   void initState() {
@@ -38,14 +50,25 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
     super.dispose();
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      }
+    });
+  }
+
   void _saveVeiculo() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _image != null) {
       Veiculo veiculo = Veiculo(
         marca: _marcaController.text,
         modelo: _modeloController.text,
         placa: _placaController.text,
         anoFabricacao: int.parse(_anoFabricacaoController.text),
         custo: int.parse(_custoController.text),
+        imagemPath: _image!.path,
       );
 
       await _dbHelper.saveVeiculo(veiculo);
@@ -54,8 +77,48 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
         SnackBar(content: Text('Veículo cadastrado com sucesso!')),
       );
 
-      Navigator.pop(context);
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, preencha todos os campos!')),
+      );
     }
+  }
+
+
+  Widget _buildTextField(String label, TextEditingController controller,
+      {String? hintText, bool isNumeric = false, bool isMasked = false, MaskTextInputFormatter? maskFormatter}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+          SizedBox(height: 8.0),
+          TextFormField(
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: hintText,
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, insira $label';
+              }
+              return null;
+            },
+            inputFormatters: isMasked ? [maskFormatter!] : [],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -64,7 +127,8 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Cadastro de Veículo'),
+        iconTheme: IconThemeData(color: Colors.black),
+        title: Text('Cadastro de Veículo', style: TextStyle(color: Colors.black)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -74,116 +138,37 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildTextField('Marca', _marcaController),
+                _buildTextField('Modelo', _modeloController),
+                _buildTextField('Placa', _placaController,
+                    isMasked: true, maskFormatter: placaMaskFormatter),
+                _buildTextField('Ano de Fabricação', _anoFabricacaoController,
+                    isNumeric: true, isMasked: true, maskFormatter: MaskTextInputFormatter(mask: '####')),
+                _buildTextField('Custo', _custoController, isNumeric: true),
+                SizedBox(height: 20),
                 Text(
-                  'Marca',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
+                  'Imagem do Veículo',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
-                TextFormField(
-                  controller: _marcaController,
-                  decoration: InputDecoration(
-                    hintText: "marca",
-                    border: OutlineInputBorder(),
+                SizedBox(height: 8),
+                GestureDetector(
+                  onTap: _pickImage,
+                  child: _image != null
+                      ? Image.file(
+                    _image!,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  )
+                      : Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[300],
+                    child: Icon(
+                      Icons.add_a_photo,
+                      color: Colors.grey[800],
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira a marca do veículo';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Modelo',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                TextFormField(
-                  controller: _modeloController,
-                  decoration: InputDecoration(
-                    hintText: "modelo",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o modelo do veículo';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Placa',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                TextFormField(
-                  controller: _placaController,
-                  decoration: InputDecoration(
-                    hintText: "XXX-0000",
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira a placa do veículo';
-                    }
-                    return null;
-                  },
-                  inputFormatters: [
-                    MaskTextInputFormatter(mask: '###-####'),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Ano de Fabricação',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                TextFormField(
-                  controller: _anoFabricacaoController,
-                  decoration: InputDecoration(
-                    hintText: "0000",
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o ano de fabricação do veículo';
-                    }
-                    return null;
-                  },
-                  inputFormatters: [
-                    MaskTextInputFormatter(mask: '####'),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Custo',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                  ),
-                ),
-                TextFormField(
-                  controller: _custoController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor, insira o custo do veículo';
-                    }
-                    return null;
-                  },
                 ),
                 SizedBox(height: 20),
                 SizedBox(

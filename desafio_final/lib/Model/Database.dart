@@ -28,7 +28,7 @@ class DatabaseHelper {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, 'app_database.db');
 
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   void _onCreate(Database db, int newVersion) async {
@@ -63,13 +63,15 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE Veiculo(
-        placa TEXT PRIMARY KEY,
+      CREATE TABLE Veiculo (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         marca TEXT,
         modelo TEXT,
+        placa TEXT,
         anoFabricacao INTEGER,
-        custo INTEGER
-      )
+        custo INTEGER,
+        imagemPath TEXT
+    )
     ''');
 
     await db.execute('''
@@ -82,6 +84,14 @@ class DatabaseHelper {
         valorTotal INTEGER
       )
     ''');
+  }
+
+  void _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        ALTER TABLE Veiculo ADD COLUMN imagemPath TEXT
+      ''');
+    }
   }
 
   // Operações para Usuário
@@ -182,25 +192,20 @@ class DatabaseHelper {
 
   Future<List<Veiculo>> getVeiculos() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Veiculo',
-        columns: ['placa', 'marca', 'modelo', 'anoFabricacao', 'custo']);
-    List<Veiculo> veiculos = [];
-    for (var map in maps) {
-      veiculos.add(Veiculo.fromMap(map as Map<String, dynamic>));
-    }
-    return veiculos;
+    List<Map<String, dynamic>> maps = await dbClient.query('Veiculo');
+    return List.generate(maps.length, (i) {
+      return Veiculo.fromMap(maps[i]);
+    });
   }
 
   Future<int> deleteVeiculo(String placa) async {
     var dbClient = await db;
-    return await dbClient
-        .delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
+    return await dbClient.delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
   }
 
   Future<int> updateVeiculo(Veiculo veiculo) async {
     var dbClient = await db;
-    return await dbClient.update('Veiculo', veiculo.toMap(),
-        where: 'placa = ?', whereArgs: [veiculo.placa]);
+    return await dbClient.update('Veiculo', veiculo.toMap(), where: 'placa = ?', whereArgs: [veiculo.placa]);
   }
 
   //Operações para Aluguel
@@ -225,16 +230,15 @@ class DatabaseHelper {
     return alugueis;
   }
 
-  Future<int> deleteAlugueis(Aluguel aluguel) async {
+  Future<int> deleteAlugueis(int id) async {
     var dbAluguel = await db;
     return await dbAluguel
-        .delete('Aluguel', where: 'id = ?', whereArgs: [aluguel]);
+        .delete('Aluguel', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<int> updateAluguel(Aluguel aluguel) async {
     var dbAluguel = await db;
     return await dbAluguel.update('Aluguel', aluguel.toMap(),
-       where: 'aluguel = ?', whereArgs: [aluguel.id]);
-
+        where: 'id = ?', whereArgs: [aluguel.id]);
   }
 }

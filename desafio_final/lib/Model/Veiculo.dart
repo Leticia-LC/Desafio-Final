@@ -4,6 +4,7 @@ class Veiculo {
   String placa;
   int anoFabricacao;
   int custo;
+  String? imagemPath;
 
   Veiculo({
     required this.marca,
@@ -11,25 +12,24 @@ class Veiculo {
     required this.placa,
     required this.anoFabricacao,
     required this.custo,
+    required this.imagemPath,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'marca': marca,
-      'modelo': modelo,
-      'placa': placa,
-      'anoFabricacao': anoFabricacao,
-      'custo': custo,
-    };
-  }
+  factory Veiculo.fromMap(Map<String, dynamic> json) => Veiculo(
+    marca: json["marca"],
+    modelo: json["modelo"],
+    placa: json["placa"],
+    anoFabricacao: json["anoFabricacao"],
+    custo: json["custo"],
+    imagemPath: json["imagemPath"],
+  );
 
-  factory Veiculo.fromMap(Map<String, dynamic> map) {
-    return Veiculo(
-      marca: map['marca'],
-      modelo: map['modelo'],
-      placa: map['placa'],
-      anoFabricacao: map['anoFabricacao'],
-      custo: map['custo'],
-    );
-  }
+  Map<String, dynamic> toMap() => {
+    "marca": marca,
+    "modelo": modelo,
+    "placa": placa,
+    "anoFabricacao": anoFabricacao,
+    "custo": custo,
+    "imagemPath": imagemPath,
+  };
 }

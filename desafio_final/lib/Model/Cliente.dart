@@ -4,6 +4,7 @@ class Cliente {
   int clientPhoneNumber;
   String city;
   String clientState;
+  String cep;
 
   Cliente({
     required this.cnpj,
@@ -11,6 +12,7 @@ class Cliente {
     required this.clientPhoneNumber,
     required this.city,
     required this.clientState,
+    required this.cep,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class Cliente {
       'clientPhoneNumber': clientPhoneNumber,
       'city': city,
       'clientState': clientState,
+      'cep': cep,
     };
   }
 
@@ -30,6 +33,7 @@ class Cliente {
       clientPhoneNumber: map['clientPhoneNumber'],
       city: map['city'],
       clientState: map['clientState'],
+      cep: map['cep'],
     );
   }
 }

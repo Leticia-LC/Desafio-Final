@@ -3,9 +3,9 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Aluguel.dart';
 import 'Usuario.dart';
-import 'Cliente.dart';
 import 'Gerente.dart';
 import 'Veiculo.dart';
+import 'Cliente.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
@@ -48,7 +48,8 @@ class DatabaseHelper {
         clientName TEXT,
         clientPhoneNumber INTEGER,
         city TEXT,
-        clientState TEXT
+        clientState TEXT,
+        cep TEXT
       )
     ''');
 
@@ -71,7 +72,7 @@ class DatabaseHelper {
         anoFabricacao INTEGER,
         custo INTEGER,
         imagemPath TEXT
-    )
+      )
     ''');
 
     await db.execute('''
@@ -90,6 +91,10 @@ class DatabaseHelper {
     if (oldVersion < 2) {
       await db.execute('''
         ALTER TABLE Veiculo ADD COLUMN imagemPath TEXT
+      ''');
+
+      await db.execute('''
+        ALTER TABLE Cliente ADD COLUMN cep TEXT
       ''');
     }
   }
@@ -135,7 +140,8 @@ class DatabaseHelper {
       'clientName',
       'clientPhoneNumber',
       'city',
-      'clientState'
+      'clientState',
+      'cep'
     ]);
     List<Cliente> clientes = [];
     for (var map in maps) {

@@ -12,12 +12,23 @@ class _ClientesScreenState extends State<ClientesScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
   Future<List<Cliente>> _fetchClientes() async {
-    return await _dbHelper.getClientes();
+    try {
+      List<Cliente> clientes = await _dbHelper.getClientes();
+      print('Clientes carregados: ${clientes.length}');
+      return clientes;
+    } catch (e) {
+      print('Erro ao buscar clientes: $e');
+      return [];
+    }
   }
 
   void _deleteCliente(String cnpj) async {
-    await _dbHelper.deleteCliente(cnpj);
-    setState(() {});
+    try {
+      await _dbHelper.deleteCliente(cnpj);
+      setState(() {});
+    } catch (e) {
+      print('Erro ao deletar cliente: $e');
+    }
   }
 
   @override
@@ -35,8 +46,10 @@ class _ClientesScreenState extends State<ClientesScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
+            print('Erro no snapshot: ${snapshot.error}');
             return Center(child: Text('Erro ao carregar os clientes'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            print('Nenhum cliente cadastrado');
             return Center(child: Text('Nenhum cliente cadastrado'));
           } else {
             return ListView.builder(

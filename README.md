@@ -5,5 +5,5 @@
 
 💻Aluna: Letícia de Lima da Cunha
 
-Protótipo das telas: https://miro.com/welcomeonboard/bWc4MVJGM0swVEJWa09ZYks4bVA5QTJjd1BnaVY3OVM4a09Hb2NwMGpWUVNuV0IwaWtoNnZxSXgwdWRkcUo3VXwzNDU4NzY0NTUxMzIzNzQ4OTU0fDI=?share_link_id=298399451062<br><br>
-Gerenciamento de tarefas (Trello):<br> https://trello.com/invite/b/AOcgwiRQ/ATTI1d27e053ccef1c5fd6de634a693b87974103D3F3/projeto-final
+<a href="https://miro.com/welcomeonboard/bWc4MVJGM0swVEJWa09ZYks4bVA5QTJjd1BnaVY3OVM4a09Hb2NwMGpWUVNuV0IwaWtoNnZxSXgwdWRkcUo3VXwzNDU4NzY0NTUxMzIzNzQ4OTU0fDI=?share_link_id=298399451062">Protótipo das telas</a>.<br>
+<a href="https://trello.com/invite/b/AOcgwiRQ/ATTI1d27e053ccef1c5fd6de634a693b87974103D3F3/projeto-final">Gerenciamento de tarefas</a>.<br>

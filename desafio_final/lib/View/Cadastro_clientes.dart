@@ -6,6 +6,10 @@ import '../Model/Database.dart';
 import '../Model/Cliente.dart';
 
 class CadastroClientesScreen extends StatefulWidget {
+  final Cliente? cliente;
+
+  CadastroClientesScreen({Key? key, this.cliente}) : super(key: key);
+
   @override
   _CadastroClientesScreenState createState() => _CadastroClientesScreenState();
 }
@@ -32,6 +36,15 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
     _cityController = TextEditingController();
     _stateController = TextEditingController();
     _cepControllerText = TextEditingController();
+
+    if (widget.cliente != null) {
+      _clientNameController.text = widget.cliente!.clientName;
+      _phoneController.text = widget.cliente!.clientPhoneNumber.toString();
+      _cnpjControllerText.text = widget.cliente!.cnpj;
+      _cityController.text = widget.cliente!.city;
+      _stateController.text = widget.cliente!.clientState;
+      _cepControllerText.text = widget.cliente!.cep;
+    }
   }
 
   @override
@@ -87,9 +100,14 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
       cep: _cepControllerText.text,
     );
 
-    await _dbHelper.saveCliente(cliente);
+    if (widget.cliente == null) {
+      await _dbHelper.saveCliente(cliente);
+    } else {
+      cliente.cnpj = widget.cliente!.cnpj;
+      await _dbHelper.updateCliente(cliente);
+    }
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cliente cadastrado com sucesso!')));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cliente salvo com sucesso!')));
 
     Navigator.pop(context, true);
   }
@@ -100,7 +118,7 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Cadastro de Cliente'),
+        title: Text(widget.cliente == null ? 'Cadastro de Cliente' : 'Atualizar Cliente'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -202,7 +220,7 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
                     foregroundColor: Colors.white, backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
-                  child: Text('Cadastrar'),
+                  child: Text(widget.cliente == null ? 'Cadastrar' : 'Atualizar'),
                 ),
               ),
             ],

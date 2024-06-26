@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../Model/Database.dart';
 import '../Model/Cliente.dart';
-import 'cadastro_clientes.dart';
+import '../Model/Database.dart';
+import 'Cadastro_clientes.dart';
 
 class ClientesScreen extends StatefulWidget {
   @override
@@ -31,6 +31,27 @@ class _ClientesScreenState extends State<ClientesScreen> {
     }
   }
 
+  void _navigateToCadastroClientesScreen(BuildContext context, Cliente cliente) async {
+    bool? clienteAtualizado = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CadastroClientesScreen(cliente: cliente)),
+    );
+    if (clienteAtualizado == true) {
+      setState(() {});
+    }
+  }
+
+  void _navigateToNovoCadastroClientesScreen(BuildContext context) async {
+    bool? clienteCadastrado = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CadastroClientesScreen()),
+    );
+    if (clienteCadastrado == true) {
+      setState(() {});
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,65 +78,70 @@ class _ClientesScreenState extends State<ClientesScreen> {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final cliente = snapshot.data![index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nome: ${cliente.clientName}',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 8.0),
-                            Text('Telefone: ${cliente.clientPhoneNumber}'),
-                            SizedBox(height: 8.0),
-                            Text('CNPJ: ${cliente.cnpj}'),
-                            SizedBox(height: 8.0),
-                            Text('Cidade: ${cliente.city}'),
-                            SizedBox(height: 8.0),
-                            Text('Estado: ${cliente.clientState}'),
-                          ],
+                return GestureDetector(
+                  onTap: () {
+                    _navigateToCadastroClientesScreen(context, cliente);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Nome: ${cliente.clientName}',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8.0),
+                              Text('Telefone: ${cliente.clientPhoneNumber}'),
+                              SizedBox(height: 8.0),
+                              Text('CNPJ: ${cliente.cnpj}'),
+                              SizedBox(height: 8.0),
+                              Text('Cidade: ${cliente.city}'),
+                              SizedBox(height: 8.0),
+                              Text('Estado: ${cliente.clientState}'),
+                            ],
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Deseja deletar cliente?'),
-                                content: Text('Tem certeza que deseja deletar o cliente ${cliente.clientName}?'),
-                                actions: [
-                                  TextButton(
-                                    child: Text('Não'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: Text('Sim'),
-                                    onPressed: () {
-                                      _deleteCliente(cliente.cnpj);
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Deseja deletar cliente?'),
+                                  content: Text('Tem certeza que deseja deletar o cliente ${cliente.clientName}?'),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('Não'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('Sim'),
+                                      onPressed: () {
+                                        _deleteCliente(cliente.cnpj);
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -125,13 +151,7 @@ class _ClientesScreenState extends State<ClientesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          bool? clienteCadastrado = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CadastroClientesScreen()),
-          );
-          if (clienteCadastrado == true) {
-            setState(() {});
-          }
+          _navigateToNovoCadastroClientesScreen(context);
         },
         backgroundColor: Colors.red,
         child: Icon(Icons.add, color: Colors.white),

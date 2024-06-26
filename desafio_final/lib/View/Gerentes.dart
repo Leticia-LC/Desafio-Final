@@ -15,6 +15,16 @@ class _GerentesScreenState extends State<GerentesScreen> {
     return await _dbHelper.getGerentes();
   }
 
+  void _navigateToCadastroGerentesScreen(BuildContext context, Gerente? gerente) async {
+    bool? gerenteAtualizado = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CadastroGerentesScreen(gerente: gerente)),
+    );
+    if (gerenteAtualizado == true) {
+      setState(() {});
+    }
+  }
+
   void _deleteGerente(String cpf) async {
     await _dbHelper.deleteGerente(cpf);
     setState(() {});
@@ -44,65 +54,68 @@ class _GerentesScreenState extends State<GerentesScreen> {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final gerente = snapshot.data![index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Nome: ${gerente.managerName}',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 8.0),
-                            Text('Telefone: ${gerente.managerphoneNumber}'),
-                            SizedBox(height: 8.0),
-                            Text('CPF: ${gerente.cpf}'),
-                            SizedBox(height: 8.0),
-                            Text('Estado: ${gerente.managerState}'),
-                            SizedBox(height: 8.0),
-                            Text('Percentual de Comissão: ${gerente.percentage}%'),
-                          ],
+                return GestureDetector(
+                  onTap: () => _navigateToCadastroGerentesScreen(context, gerente),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Nome: ${gerente.managerName}',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8.0),
+                              Text('Telefone: ${gerente.managerphoneNumber}'),
+                              SizedBox(height: 8.0),
+                              Text('CPF: ${gerente.cpf}'),
+                              SizedBox(height: 8.0),
+                              Text('Estado: ${gerente.managerState}'),
+                              SizedBox(height: 8.0),
+                              Text('Percentual de Comissão: ${gerente.percentage}%'),
+                            ],
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Deseja deletar gerente?'),
-                                content: Text('Tem certeza que deseja deletar o gerente ${gerente.managerName}?'),
-                                actions: [
-                                  TextButton(
-                                    child: Text('Não'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: Text('Sim'),
-                                    onPressed: () {
-                                      _deleteGerente(gerente.cpf);
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Deseja deletar gerente?'),
+                                  content: Text('Tem certeza que deseja deletar o gerente ${gerente.managerName}?'),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('Não'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('Sim'),
+                                      onPressed: () {
+                                        _deleteGerente(gerente.cpf);
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

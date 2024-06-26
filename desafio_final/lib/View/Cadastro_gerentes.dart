@@ -4,6 +4,10 @@ import '../Model/Database.dart';
 import '../Model/Gerente.dart';
 
 class CadastroGerentesScreen extends StatefulWidget {
+  final Gerente? gerente;
+
+  CadastroGerentesScreen({this.gerente});
+
   @override
   _CadastroGerenteScreenState createState() => _CadastroGerenteScreenState();
 }
@@ -21,11 +25,11 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
   @override
   void initState() {
     super.initState();
-    _managerNameController = TextEditingController();
-    _cpfController = TextEditingController();
-    _managerStateController = TextEditingController();
-    _managerPhoneNumberController = TextEditingController();
-    _percentageController = TextEditingController();
+    _managerNameController = TextEditingController(text: widget.gerente?.managerName ?? '');
+    _cpfController = TextEditingController(text: widget.gerente?.cpf ?? '');
+    _managerStateController = TextEditingController(text: widget.gerente?.managerState ?? '');
+    _managerPhoneNumberController = TextEditingController(text: widget.gerente?.managerphoneNumber ?? '');
+    _percentageController = TextEditingController(text: widget.gerente != null ? widget.gerente!.percentage.toString() : '');
   }
 
   @override
@@ -46,23 +50,27 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
 
       Gerente gerente = Gerente(
         managerName: _managerNameController.text,
-        cpf: cpf,  // CPF como String
+        cpf: cpf,
         managerState: _managerStateController.text,
         managerphoneNumber: _managerPhoneNumberController.text,
         percentage: int.parse(_percentageController.text),
       );
 
-      await _dbHelper.saveGerente(gerente);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gerente cadastrado com sucesso!')),
-      );
+      if (widget.gerente == null) {
+        await _dbHelper.saveGerente(gerente);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gerente cadastrado com sucesso!')),
+        );
+      } else {
+        await _dbHelper.updateGerente(gerente);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gerente atualizado com sucesso!')),
+        );
+      }
 
       Navigator.pop(context, true);
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +78,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text('Cadastro de Gerente'),
+        title: Text(widget.gerente == null ? 'Cadastro de Gerente' : 'Atualizar Gerente'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -157,19 +165,15 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 TextFormField(
                   controller: _managerPhoneNumberController,
                   decoration: InputDecoration(
-                    hintText: "(00) 00000-0000",
+                    hintText: "telefone",
                     border: OutlineInputBorder(),
                   ),
-                  keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, insira o telefone do gerente';
                     }
                     return null;
                   },
-                  inputFormatters: [
-                    MaskTextInputFormatter(mask: '(##) #####-####'),
-                  ],
                 ),
                 SizedBox(height: 10),
                 Text(
@@ -182,6 +186,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 TextFormField(
                   controller: _percentageController,
                   decoration: InputDecoration(
+                    hintText: "percentual de comissão",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
@@ -199,18 +204,12 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                   child: ElevatedButton(
                     onPressed: _saveGerente,
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red,
-                      textStyle: TextStyle(
-                        fontSize: 15,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
+                      foregroundColor: Colors.white, backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                     ),
-                    child: Text('Cadastrar'),
+                    child: Text(widget.gerente == null ? 'Cadastrar' : 'Atualizar'),
                   ),
-                ),
+                )
               ],
             ),
           ),

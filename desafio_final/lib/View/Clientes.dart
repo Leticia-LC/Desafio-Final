@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../Model/Cliente.dart';
 import '../Model/Database.dart';
+import '../Model/Gerente.dart';
 import 'Cadastro_clientes.dart';
 
 class ClientesScreen extends StatefulWidget {
@@ -31,10 +32,12 @@ class _ClientesScreenState extends State<ClientesScreen> {
     }
   }
 
-  void _navigateToCadastroClientesScreen(BuildContext context, Cliente cliente) async {
+  void _navigateToCadastroClientesScreen(
+      BuildContext context, Cliente cliente) async {
     bool? clienteAtualizado = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CadastroClientesScreen(cliente: cliente)),
+      MaterialPageRoute(
+          builder: (context) => CadastroClientesScreen(cliente: cliente)),
     );
     if (clienteAtualizado == true) {
       setState(() {});
@@ -50,7 +53,6 @@ class _ClientesScreenState extends State<ClientesScreen> {
       setState(() {});
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -78,71 +80,91 @@ class _ClientesScreenState extends State<ClientesScreen> {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final cliente = snapshot.data![index];
-                return GestureDetector(
-                  onTap: () {
-                    _navigateToCadastroClientesScreen(context, cliente);
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
+                return FutureBuilder<Gerente?>(
+                  future: _dbHelper.getGerenteByState(cliente.clientState),
+                  builder: (context, gerenteSnapshot) {
+                    if (gerenteSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (gerenteSnapshot.hasError) {
+                      return Text('Erro ao carregar o gerente');
+                    } else {
+                      final gerente = gerenteSnapshot.data;
+                      return GestureDetector(
+                        onTap: () {
+                          _navigateToCadastroClientesScreen(context, cliente);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Nome: ${cliente.clientName}',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Nome: ${cliente.clientName}',
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(height: 8.0),
+                                    Text(
+                                        'Telefone: ${cliente.clientPhoneNumber}'),
+                                    SizedBox(height: 8.0),
+                                    Text('CNPJ: ${cliente.cnpj}'),
+                                    SizedBox(height: 8.0),
+                                    Text('Cidade: ${cliente.city}'),
+                                    SizedBox(height: 8.0),
+                                    Text('Estado: ${cliente.clientState}'),
+                                    SizedBox(height: 8.0),
+                                    Text(
+                                        'Gerente Responsável: ${gerente?.managerName ?? 'N/A'}'),
+                                  ],
+                                ),
                               ),
-                              SizedBox(height: 8.0),
-                              Text('Telefone: ${cliente.clientPhoneNumber}'),
-                              SizedBox(height: 8.0),
-                              Text('CNPJ: ${cliente.cnpj}'),
-                              SizedBox(height: 8.0),
-                              Text('Cidade: ${cliente.city}'),
-                              SizedBox(height: 8.0),
-                              Text('Estado: ${cliente.clientState}'),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text('Deseja deletar cliente?'),
+                                        content: Text(
+                                            'Tem certeza que deseja deletar o cliente ${cliente.clientName}?'),
+                                        actions: [
+                                          TextButton(
+                                            child: Text('Não'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: Text('Sim'),
+                                            onPressed: () {
+                                              _deleteCliente(cliente.cnpj);
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text('Deseja deletar cliente?'),
-                                  content: Text('Tem certeza que deseja deletar o cliente ${cliente.clientName}?'),
-                                  actions: [
-                                    TextButton(
-                                      child: Text('Não'),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Text('Sim'),
-                                      onPressed: () {
-                                        _deleteCliente(cliente.cnpj);
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                      );
+                    }
+                  },
                 );
               },
             );

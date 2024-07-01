@@ -2,10 +2,10 @@ import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'Aluguel.dart';
-import 'Usuario.dart';
-import 'Gerente.dart';
-import 'Veiculo.dart';
 import 'Cliente.dart';
+import 'Gerente.dart';
+import 'Usuario.dart';
+import 'Veiculo.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
@@ -28,7 +28,8 @@ class DatabaseHelper {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, 'app_database.db');
 
-    return await openDatabase(path, version: 2, onCreate: _onCreate, onUpgrade: _onUpgrade);
+    return await openDatabase(path,
+        version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   void _onCreate(Database db, int newVersion) async {
@@ -49,7 +50,8 @@ class DatabaseHelper {
         clientPhoneNumber INTEGER,
         city TEXT,
         clientState TEXT,
-        cep TEXT
+        cep TEXT, 
+        managerCpf TEXT
       )
     ''');
 
@@ -90,12 +92,23 @@ class DatabaseHelper {
   void _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('''
-        ALTER TABLE Veiculo ADD COLUMN imagemPath TEXT
-      ''');
+      ALTER TABLE Veiculo ADD COLUMN imagemPath TEXT
+    ''');
 
       await db.execute('''
-        ALTER TABLE Cliente ADD COLUMN cep TEXT
+      ALTER TABLE Cliente ADD COLUMN cep TEXT
+    ''');
+    }
+
+    if (oldVersion < 3) {
+      var tableInfo = await db.rawQuery('PRAGMA table_info(Cliente)');
+      var columns =
+          tableInfo.map((column) => column['name'] as String).toList();
+      if (!columns.contains('managerCpf')) {
+        await db.execute('''
+        ALTER TABLE Cliente ADD COLUMN managerCpf TEXT
       ''');
+      }
     }
   }
 
@@ -130,6 +143,12 @@ class DatabaseHelper {
   // Operações para Cliente
   Future<int> saveCliente(Cliente cliente) async {
     var dbClient = await db;
+
+    Gerente? gerente = await getGerenteByState(cliente.clientState);
+    if (gerente != null) {
+      cliente.managerCpf = gerente.cpf;
+    }
+
     return await dbClient.insert('Cliente', cliente.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
@@ -153,7 +172,8 @@ class DatabaseHelper {
 
   Future<int> deleteCliente(String cnpj) async {
     var dbClient = await db;
-    return await dbClient.delete('Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
+    return await dbClient
+        .delete('Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
   }
 
   Future<int> updateCliente(Cliente cliente) async {
@@ -186,11 +206,29 @@ class DatabaseHelper {
 
   Future<int> updateGerente(Gerente gerente) async {
     var dbClient = await db;
-    return await dbClient.update('Gerente', gerente.toMap(),
-        where: 'cpf = ?', whereArgs: [gerente.cpf]);
+    return await dbClient.update(
+      'Gerente',
+      gerente.toMap(),
+      where: 'cpf = ?',
+      whereArgs: [gerente.cpf],
+    );
   }
 
-  // Operações para Veículo
+  Future<Gerente?> getGerenteByState(String state) async {
+    var dbClient = await db;
+    List<Map<String, dynamic>> result = await dbClient.query(
+      'Gerente',
+      where: 'managerState = ?',
+      whereArgs: [state],
+      limit: 1,
+    );
+    if (result.isNotEmpty) {
+      return Gerente.fromMap(result.first);
+    }
+    return null;
+  }
+
+// Operações para Veículo
   Future<int> saveVeiculo(Veiculo veiculo) async {
     var dbClient = await db;
     return await dbClient.insert('Veiculo', veiculo.toMap());
@@ -206,12 +244,14 @@ class DatabaseHelper {
 
   Future<int> deleteVeiculo(String placa) async {
     var dbClient = await db;
-    return await dbClient.delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
+    return await dbClient
+        .delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
   }
 
   Future<int> updateVeiculo(Veiculo veiculo) async {
     var dbClient = await db;
-    return await dbClient.update('Veiculo', veiculo.toMap(), where: 'placa = ?', whereArgs: [veiculo.placa]);
+    return await dbClient.update('Veiculo', veiculo.toMap(),
+        where: 'placa = ?', whereArgs: [veiculo.placa]);
   }
 
   // Operações para Aluguel

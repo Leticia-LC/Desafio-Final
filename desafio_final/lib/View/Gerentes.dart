@@ -15,10 +15,12 @@ class _GerentesScreenState extends State<GerentesScreen> {
     return await _dbHelper.getGerentes();
   }
 
-  void _navigateToCadastroGerentesScreen(BuildContext context, Gerente? gerente) async {
+  void _navigateToCadastroGerentesScreen(
+      BuildContext context, Gerente? gerente) async {
     bool? gerenteAtualizado = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CadastroGerentesScreen(gerente: gerente)),
+      MaterialPageRoute(
+          builder: (context) => CadastroGerentesScreen(gerente: gerente)),
     );
     if (gerenteAtualizado == true) {
       setState(() {});
@@ -28,6 +30,17 @@ class _GerentesScreenState extends State<GerentesScreen> {
   void _deleteGerente(String cpf) async {
     await _dbHelper.deleteGerente(cpf);
     setState(() {});
+  }
+
+  void _updateGerente(Gerente gerente) async {
+    bool? gerenteAtualizado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CadastroGerentesScreen(gerente: gerente)),
+    );
+    if (gerenteAtualizado == true) {
+      setState(() {});
+    }
   }
 
   @override
@@ -55,7 +68,8 @@ class _GerentesScreenState extends State<GerentesScreen> {
               itemBuilder: (context, index) {
                 final gerente = snapshot.data![index];
                 return GestureDetector(
-                  onTap: () => _navigateToCadastroGerentesScreen(context, gerente),
+                  onTap: () => _updateGerente(gerente),
+                  // Chama o método de atualização ao clicar
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     padding: const EdgeInsets.all(16.0),
@@ -72,7 +86,8 @@ class _GerentesScreenState extends State<GerentesScreen> {
                             children: [
                               Text(
                                 'Nome: ${gerente.managerName}',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(height: 8.0),
                               Text('Telefone: ${gerente.managerphoneNumber}'),
@@ -81,7 +96,8 @@ class _GerentesScreenState extends State<GerentesScreen> {
                               SizedBox(height: 8.0),
                               Text('Estado: ${gerente.managerState}'),
                               SizedBox(height: 8.0),
-                              Text('Percentual de Comissão: ${gerente.percentage}%'),
+                              Text(
+                                  'Percentual de Comissão: ${gerente.percentage}%'),
                             ],
                           ),
                         ),
@@ -93,7 +109,8 @@ class _GerentesScreenState extends State<GerentesScreen> {
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                   title: Text('Deseja deletar gerente?'),
-                                  content: Text('Tem certeza que deseja deletar o gerente ${gerente.managerName}?'),
+                                  content: Text(
+                                      'Tem certeza que deseja deletar o gerente ${gerente.managerName}?'),
                                   actions: [
                                     TextButton(
                                       child: Text('Não'),

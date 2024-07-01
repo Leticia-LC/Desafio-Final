@@ -5,6 +5,7 @@ class Cliente {
   String city;
   String clientState;
   String cep;
+  String? managerCpf;
 
   Cliente({
     required this.cnpj,
@@ -13,6 +14,7 @@ class Cliente {
     required this.city,
     required this.clientState,
     required this.cep,
+    this.managerCpf,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class Cliente {
       'city': city,
       'clientState': clientState,
       'cep': cep,
+      'managerCpf': managerCpf,
     };
   }
 
@@ -34,6 +37,7 @@ class Cliente {
       city: map['city'],
       clientState: map['clientState'],
       cep: map['cep'],
+      managerCpf: map['managerCpf'],
     );
   }
 }

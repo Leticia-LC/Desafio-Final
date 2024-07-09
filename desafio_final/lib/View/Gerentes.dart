@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Model/Database.dart';
+import '../Controller/Database.dart';
 import '../Model/Gerente.dart';
 import 'Cadastro_gerentes.dart';
 

@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'Aluguel.dart';
-import 'Cliente.dart';
-import 'Gerente.dart';
-import 'Usuario.dart';
-import 'Veiculo.dart';
+import '../Model/Aluguel.dart';
+import '../Model/Cliente.dart';
+import '../Model/Gerente.dart';
+import '../Model/Usuario.dart';
+import '../Model/Veiculo.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
@@ -29,7 +29,7 @@ class DatabaseHelper {
     final path = join(databasesPath, 'app_database.db');
 
     return await openDatabase(path,
-        version: 3, onCreate: _onCreate, onUpgrade: _onUpgrade);
+        version: 4, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   void _onCreate(Database db, int newVersion) async {
@@ -72,7 +72,7 @@ class DatabaseHelper {
         modelo TEXT,
         placa TEXT,
         anoFabricacao INTEGER,
-        custo INTEGER,
+        custo REAL,
         imagemPath TEXT
       )
     ''');
@@ -109,6 +109,28 @@ class DatabaseHelper {
         ALTER TABLE Cliente ADD COLUMN managerCpf TEXT
       ''');
       }
+    }
+
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE Veiculo_temp (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          marca TEXT,
+          modelo TEXT,
+          placa TEXT,
+          anoFabricacao INTEGER,
+          custo REAL,
+          imagemPath TEXT
+        )
+      ''');
+
+      await db.execute('''
+        INSERT INTO Veiculo_temp (id, marca, modelo, placa, anoFabricacao, custo, imagemPath)
+        SELECT id, marca, modelo, placa, anoFabricacao, custo, imagemPath FROM Veiculo
+      ''');
+
+      await db.execute('DROP TABLE Veiculo');
+      await db.execute('ALTER TABLE Veiculo_temp RENAME TO Veiculo');
     }
   }
 
@@ -228,8 +250,13 @@ class DatabaseHelper {
     return null;
   }
 
-// Operações para Veículo
+  // Operações para Veículo
   Future<int> saveVeiculo(Veiculo veiculo) async {
+    var dbClient = await db;
+    return await dbClient.insert('Veiculo', veiculo.toMap());
+  }
+
+  Future<int> insertVeiculo(Veiculo veiculo) async {
     var dbClient = await db;
     return await dbClient.insert('Veiculo', veiculo.toMap());
   }
@@ -255,6 +282,27 @@ class DatabaseHelper {
   }
 
   // Operações para Aluguel
+
+  Future<Map<String, dynamic>> getAluguelDetails(int id) async {
+    var dbClient = await db;
+    List<Map<String, dynamic>> result = await dbClient.rawQuery('''
+    SELECT a.id, a.cliente, a.dataInicio, a.dataTermino, a.numeroDias, a.valorTotal,
+           c.clientName, c.clientPhoneNumber, c.city, c.clientState, c.cep, c.managerCpf,
+           v.marca, v.modelo, v.placa, v.anoFabricacao, v.custo, v.imagemPath,
+           g.managerName, g.managerState, g.managerPhoneNumber, g.percentage
+    FROM Aluguel a
+    JOIN Cliente c ON a.cliente = c.cnpj
+    JOIN Veiculo v ON a.veiculo = v.id
+    JOIN Gerente g ON c.managerCpf = g.cpf
+    WHERE a.id = ?
+  ''', [id]);
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return {};
+  }
+
   Future<int> saveAluguel(Aluguel aluguel) async {
     var dbClient = await db;
     return await dbClient.insert('Aluguel', aluguel.toMap());

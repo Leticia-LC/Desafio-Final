@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../Model/Database.dart';
+import '../Controller/Database.dart';
 import '../Model/Veiculo.dart';
 import 'Cadastro_veiculos.dart';
 
@@ -19,6 +19,18 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
   void _deleteVeiculo(String placa) async {
     await _dbHelper.deleteVeiculo(placa);
     setState(() {});
+  }
+
+  void _editVeiculo(Veiculo veiculo) async {
+    bool? veiculoAtualizado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CadastroVeiculosScreen(veiculo: veiculo),
+      ),
+    );
+    if (veiculoAtualizado == true) {
+      setState(() {});
+    }
   }
 
   @override
@@ -45,79 +57,85 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final veiculo = snapshot.data![index];
-                return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8.0),
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 100,
-                        height: 100,
-                        color: Colors.grey[300],
-                        child: veiculo.imagemPath != null
-                            ? Image.file(
-                          File(veiculo.imagemPath!),
+                return GestureDetector(
+                  onTap: () => _editVeiculo(veiculo),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
                           width: 100,
                           height: 100,
-                          fit: BoxFit.cover,
-                        )
-                            : Icon(Icons.image, size: 50, color: Colors.grey),
-                      ),
-                      SizedBox(width: 16.0),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Marca: ${veiculo.marca}',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 8.0),
-                            Text('Modelo: ${veiculo.modelo}'),
-                            SizedBox(height: 8.0),
-                            Text('Placa: ${veiculo.placa}'),
-                            SizedBox(height: 8.0),
-                            Text('Ano de Fabricação: ${veiculo.anoFabricacao}'),
-                            SizedBox(height: 8.0),
-                            Text('Custo: ${veiculo.custo}'),
-                          ],
+                          color: Colors.grey[300],
+                          child: veiculo.imagemPath != null
+                              ? Image.file(
+                                  File(veiculo.imagemPath!),
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : Icon(Icons.image, size: 50, color: Colors.grey),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Deseja deletar veículo?'),
-                                content: Text('Tem certeza que deseja deletar o veículo de placa ${veiculo.placa}?'),
-                                actions: [
-                                  TextButton(
-                                    child: Text('Não'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                  TextButton(
-                                    child: Text('Sim'),
-                                    onPressed: () {
-                                      _deleteVeiculo(veiculo.placa);
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                        SizedBox(width: 16.0),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Marca: ${veiculo.marca}',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(height: 8.0),
+                              Text('Modelo: ${veiculo.modelo}'),
+                              SizedBox(height: 8.0),
+                              Text('Placa: ${veiculo.placa}'),
+                              SizedBox(height: 8.0),
+                              Text(
+                                  'Ano de Fabricação: ${veiculo.anoFabricacao}'),
+                              SizedBox(height: 8.0),
+                              Text('Custo: ${veiculo.custo}'),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Deseja deletar veículo?'),
+                                  content: Text(
+                                      'Tem certeza que deseja deletar o veículo de placa ${veiculo.placa}?'),
+                                  actions: [
+                                    TextButton(
+                                      child: Text('Não'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('Sim'),
+                                      onPressed: () {
+                                        _deleteVeiculo(veiculo.placa);
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },

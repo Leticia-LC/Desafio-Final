@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Model/Database.dart';
+import '../Controller/Database.dart';
 import '../Model/Usuario.dart';
 import 'Menu.dart';
 
@@ -21,7 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
       Usuario? isValidUser;
       try {
         isValidUser = usuarios.firstWhere(
-              (user) => user.email == _emailController.text && user.password == _passwordController.text,
+          (user) =>
+              user.email == _emailController.text &&
+              user.password == _passwordController.text,
         );
       } catch (e) {
         isValidUser = null;
@@ -113,7 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       hintText: "•••••••••",
                       border: OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+                        icon: Icon(_showPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off),
                         onPressed: () {
                           setState(() {
                             _showPassword = !_showPassword;

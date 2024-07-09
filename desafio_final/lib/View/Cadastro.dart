@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../Model/Database.dart';
+import '../Controller/Database.dart';
 import '../Model/Usuario.dart';
 
 class UserRegistrationScreen extends StatefulWidget {
@@ -144,7 +144,9 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                       hintText: "...........",
                       border: OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+                        icon: Icon(_showPassword
+                            ? Icons.visibility
+                            : Icons.visibility_off),
                         onPressed: () {
                           setState(() {
                             _showPassword = !_showPassword;
@@ -167,7 +169,8 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                     child: ElevatedButton(
                       onPressed: _register,
                       style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.red,
                         textStyle: TextStyle(
                           fontSize: 15,
                         ),

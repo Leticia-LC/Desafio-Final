@@ -2,11 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import '../Controller/Database.dart';
 import '../Controller/Fipe_controller.dart';
-import '../Model/Database.dart';
 import '../Model/Veiculo.dart';
 
 class CadastroVeiculosScreen extends StatefulWidget {
+  final Veiculo? veiculo;
+
+  CadastroVeiculosScreen({this.veiculo});
+
   @override
   _CadastroVeiculosScreenState createState() => _CadastroVeiculosScreenState();
 }
@@ -23,10 +27,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
 
   var placaMaskFormatter = MaskTextInputFormatter(
     mask: 'AAA-####',
-    filter: {
-      "#": RegExp(r'[0-9]'),
-      "A": RegExp(r'[A-Za-z]')
-    },
+    filter: {"#": RegExp(r'[0-9]'), "A": RegExp(r'[A-Za-z]')},
     type: MaskAutoCompletionType.lazy,
   );
 
@@ -38,10 +39,19 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
   @override
   void initState() {
     super.initState();
-    _placaController = TextEditingController();
-    _anoFabricacaoController = TextEditingController();
-    _custoController = TextEditingController();
-    _loadBrands();
+    _placaController = TextEditingController(text: widget.veiculo?.placa ?? '');
+    _anoFabricacaoController = TextEditingController(
+        text: widget.veiculo?.anoFabricacao.toString() ?? '');
+    _custoController =
+        TextEditingController(text: widget.veiculo?.custo.toString() ?? '');
+    if (widget.veiculo != null &&
+        widget.veiculo!.imagemPath != null &&
+        widget.veiculo!.imagemPath!.isNotEmpty) {
+      _image = File(widget.veiculo!.imagemPath!);
+      _loadBrandsAndModelsForEdit();
+    } else {
+      _loadBrands();
+    }
   }
 
   @override
@@ -58,7 +68,6 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
       setState(() {
         _brands = brands;
       });
-      print('Marcas carregadas: $_brands');
     } catch (e) {
       setState(() {
         _brands = [];
@@ -66,7 +75,30 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao carregar marcas: $e')),
       );
-      print('Erro ao carregar marcas: $e');
+    }
+  }
+
+  Future<void> _loadBrandsAndModelsForEdit() async {
+    try {
+      List<VehicleBrand> brands = await _fipeController.getBrands();
+      setState(() {
+        _brands = brands;
+        _selectedBrand =
+            brands.firstWhere((brand) => brand.name == widget.veiculo!.marca);
+      });
+      if (_selectedBrand != null) {
+        List<VehicleModel> models =
+            await _fipeController.getModels(_selectedBrand!.code);
+        setState(() {
+          _models = models;
+          _selectedModel = models
+              .firstWhere((model) => model.name == widget.veiculo!.modelo);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao carregar marcas e modelos: $e')),
+      );
     }
   }
 
@@ -84,7 +116,8 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
 
     setState(() {
       if (pickedFile != null) {
@@ -93,64 +126,31 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
     });
   }
 
-  void _saveVeiculo() async {
-    if (_formKey.currentState!.validate() && _image != null) {
+  Future<void> _saveVeiculo() async {
+    if (_formKey.currentState!.validate()) {
       Veiculo veiculo = Veiculo(
-        marca: _selectedBrand?.name ?? '',
-        modelo: _selectedModel?.name ?? '',
         placa: _placaController.text,
+        marca: _selectedBrand!.name,
+        modelo: _selectedModel!.name,
         anoFabricacao: int.parse(_anoFabricacaoController.text),
-        custo: int.parse(_custoController.text),
-        imagemPath: _image!.path,
+        custo: double.parse(_custoController.text),
+        imagemPath: _image?.path ?? '',
       );
 
-      await _dbHelper.saveVeiculo(veiculo);
+      if (widget.veiculo == null) {
+        await _dbHelper.insertVeiculo(veiculo);
+      } else {
+        print(
+            'Atualizando veículo: ${veiculo.placa}, ${veiculo.marca}, ${veiculo.modelo}, ${veiculo.anoFabricacao}, ${veiculo.custo}');
+        await _dbHelper.updateVeiculo(veiculo);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Veículo cadastrado com sucesso!')),
+        SnackBar(content: Text('Veículo salvo com sucesso!')),
       );
 
       Navigator.pop(context, true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, preencha todos os campos e selecione uma imagem!')),
-      );
     }
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller,
-      {String? hintText, bool isNumeric = false, bool isMasked = false, MaskTextInputFormatter? maskFormatter}) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-            ),
-          ),
-          SizedBox(height: 8.0),
-          TextFormField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: hintText,
-              border: OutlineInputBorder(),
-            ),
-            keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor, insira $label';
-              }
-              return null;
-            },
-            inputFormatters: isMasked ? [maskFormatter!] : [],
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -159,110 +159,196 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Cadastro de Veículo', style: TextStyle(color: Colors.black)),
+        title: Text(
+          widget.veiculo == null ? 'Cadastro de Veículo' : 'Atualizar Veículo',
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<VehicleBrand>(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Marca',
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Placa',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              TextFormField(
+                controller: _placaController,
+                inputFormatters: [placaMaskFormatter],
+                decoration: InputDecoration(
+                  hintText: "Placa do veículo",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira a placa do veículo';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Marca',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              DropdownButtonFormField<VehicleBrand>(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedBrand,
+                onChanged: (VehicleBrand? newValue) async {
+                  setState(() {
+                    _selectedBrand = newValue;
+                    _selectedModel = null;
+                    _models = [];
+                  });
+                  if (_selectedBrand != null) {
+                    await _loadModels(_selectedBrand!.code);
+                  }
+                },
+                items: _brands
+                    .map<DropdownMenuItem<VehicleBrand>>((VehicleBrand brand) {
+                  return DropdownMenuItem<VehicleBrand>(
+                    value: brand,
+                    child: Text(brand.name),
+                  );
+                }).toList(),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Por favor, selecione a marca do veículo';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Modelo',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              DropdownButtonFormField<VehicleModel>(
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                value: _selectedModel,
+                onChanged: (VehicleModel? newValue) {
+                  setState(() {
+                    _selectedModel = newValue;
+                  });
+                },
+                items: _models
+                    .map<DropdownMenuItem<VehicleModel>>((VehicleModel model) {
+                  return DropdownMenuItem<VehicleModel>(
+                    value: model,
+                    child: Text(model.name),
+                  );
+                }).toList(),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Por favor, selecione o modelo do veículo';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Ano de Fabricação',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              TextFormField(
+                controller: _anoFabricacaoController,
+                decoration: InputDecoration(
+                  hintText: "Ano de fabricação",
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira o ano de fabricação do veículo';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Custo',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              TextFormField(
+                controller: _custoController,
+                decoration: InputDecoration(
+                  hintText: "Custo do veículo",
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira o custo do veículo';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Imagem',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+              GestureDetector(
+                onTap: _pickImage,
+                child: _image == null
+                    ? Container(
+                        width: double.infinity,
+                        height: 150,
+                        color: Colors.grey[200],
+                        child: Icon(
+                          Icons.add_a_photo,
+                          color: Colors.grey[800],
                         ),
-                        value: _selectedBrand,
-                        items: _brands.map((brand) {
-                          return DropdownMenuItem<VehicleBrand>(
-                            value: brand,
-                            child: Text(brand.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedBrand = value;
-                            _selectedModel = null;
-                            _models = [];
-                            if (_selectedBrand != null) {
-                              _loadModels(_selectedBrand!.code);
-                            }
-                          });
-                        },
-                        validator: (value) => value == null ? 'Por favor, selecione uma marca' : null,
+                      )
+                    : Image.file(
+                        _image!,
+                        width: double.infinity,
+                        height: 150,
+                        fit: BoxFit.cover,
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: DropdownButtonFormField<VehicleModel>(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Modelo',
-                        ),
-                        value: _selectedModel,
-                        items: _models.map((model) {
-                          return DropdownMenuItem<VehicleModel>(
-                            value: model,
-                            child: Text(model.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedModel = value;
-                          });
-                        },
-                        validator: (value) => value == null ? 'Por favor, selecione um modelo' : null,
-                      ),
-                    ),
-                  ],
-                ),
-                _buildTextField('Placa', _placaController, isMasked: true, maskFormatter: placaMaskFormatter),
-                _buildTextField('Ano de Fabricação', _anoFabricacaoController,
-                    isNumeric: true, isMasked: true, maskFormatter: MaskTextInputFormatter(mask: '####')),
-                _buildTextField('Custo', _custoController, isNumeric: true),
-                SizedBox(height: 20),
-                Text(
-                  'Imagem do veículo:',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-                SizedBox(height: 8.0),
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    color: Colors.grey[200],
-                    height: 150,
-                    width: double.infinity,
-                    child: _image == null
-                        ? Icon(Icons.add_a_photo, size: 50, color: Colors.grey)
-                        : Image.file(_image!, fit: BoxFit.cover),
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _saveVeiculo,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red,
+                    shape:
+                        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
+                  child:
+                      Text(widget.veiculo == null ? 'Cadastrar' : 'Atualizar'),
                 ),
-                SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _saveVeiculo,
-                    child: Text('Salvar Veículo'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              )
+            ],
           ),
         ),
       ),

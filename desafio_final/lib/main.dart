@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Controller/Theme_provider.dart';
-import 'View/Cadastro.dart';
+import 'View/Register.dart';
 import 'View/Login.dart';
 
 void main() {
@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
           themeMode: themeProvider.themeMode,
           initialRoute: '/login',
           routes: {
-            '/cadastro': (context) => UserRegistrationScreen(),
+            '/register': (context) => UserRegistrationScreen(),
             '/login': (context) => LoginScreen(),
           },
         );

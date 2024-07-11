@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../Model/Usuario.dart';
-import 'Alugueis.dart';
-import 'Clientes.dart';
-import 'Gerentes.dart';
-import 'Perfil.dart';
-import 'Veiculos.dart';
+import '../Model/User.dart';
+import 'Rentals.dart';
+import 'Clients.dart';
+import 'Managers.dart';
+import 'Profile.dart';
+import 'Vehicles.dart';
 
 class MenuScreen extends StatelessWidget {
-  final Usuario usuario;
+  final User user;
 
-  MenuScreen({required this.usuario});
+  MenuScreen({required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +28,13 @@ class MenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ProfileScreen(usuario: usuario),
+                    builder: (context) => ProfileScreen(user: user),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
@@ -47,12 +48,13 @@ class MenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ClientesScreen(),
+                    builder: (context) => ClientsScreen(),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(horizontal: 90, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
@@ -66,12 +68,13 @@ class MenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GerentesScreen(),
+                    builder: (context) => ManagersScreen(),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(horizontal: 90, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
@@ -85,12 +88,13 @@ class MenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => VeiculosScreen(),
+                    builder: (context) => VehiclesScreen(),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(horizontal: 90, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
@@ -104,12 +108,13 @@ class MenuScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AlugueisScreen(),
+                    builder: (context) => RentalsScreen(),
                   ),
                 );
               },
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(horizontal: 90, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.zero,
@@ -123,6 +128,3 @@ class MenuScreen extends StatelessWidget {
     );
   }
 }
-
-
-

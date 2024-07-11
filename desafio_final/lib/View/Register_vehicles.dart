@@ -4,18 +4,18 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../Controller/Database.dart';
 import '../Controller/Fipe_controller.dart';
-import '../Model/Veiculo.dart';
+import '../Model/Vehicle.dart';
 
-class CadastroVeiculosScreen extends StatefulWidget {
-  final Veiculo? veiculo;
+class RegisterVehiclesScreen extends StatefulWidget {
+  final Vehicle? vehicle;
 
-  CadastroVeiculosScreen({this.veiculo});
+  RegisterVehiclesScreen({this.vehicle});
 
   @override
-  _CadastroVeiculosScreenState createState() => _CadastroVeiculosScreenState();
+  _RegisterVehiclesScreenState createState() => _RegisterVehiclesScreenState();
 }
 
-class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
+class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   final FipeController _fipeController = FipeController();
@@ -39,15 +39,15 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
   @override
   void initState() {
     super.initState();
-    _placaController = TextEditingController(text: widget.veiculo?.placa ?? '');
+    _placaController = TextEditingController(text: widget.vehicle?.plate ?? '');
     _anoFabricacaoController = TextEditingController(
-        text: widget.veiculo?.anoFabricacao.toString() ?? '');
+        text: widget.vehicle?.yearOfManufacture.toString() ?? '');
     _custoController =
-        TextEditingController(text: widget.veiculo?.custo.toString() ?? '');
-    if (widget.veiculo != null &&
-        widget.veiculo!.imagemPath != null &&
-        widget.veiculo!.imagemPath!.isNotEmpty) {
-      _image = File(widget.veiculo!.imagemPath!);
+        TextEditingController(text: widget.vehicle?.cost.toString() ?? '');
+    if (widget.vehicle != null &&
+        widget.vehicle!.imagePath != null &&
+        widget.vehicle!.imagePath!.isNotEmpty) {
+      _image = File(widget.vehicle!.imagePath!);
       _loadBrandsAndModelsForEdit();
     } else {
       _loadBrands();
@@ -84,7 +84,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
       setState(() {
         _brands = brands;
         _selectedBrand =
-            brands.firstWhere((brand) => brand.name == widget.veiculo!.marca);
+            brands.firstWhere((brand) => brand.name == widget.vehicle!.brand);
       });
       if (_selectedBrand != null) {
         List<VehicleModel> models =
@@ -92,7 +92,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
         setState(() {
           _models = models;
           _selectedModel = models
-              .firstWhere((model) => model.name == widget.veiculo!.modelo);
+              .firstWhere((model) => model.name == widget.vehicle!.model);
         });
       }
     } catch (e) {
@@ -126,23 +126,23 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
     });
   }
 
-  Future<void> _saveVeiculo() async {
+  Future<void> _saveVehicle() async {
     if (_formKey.currentState!.validate()) {
-      Veiculo veiculo = Veiculo(
-        placa: _placaController.text,
-        marca: _selectedBrand!.name,
-        modelo: _selectedModel!.name,
-        anoFabricacao: int.parse(_anoFabricacaoController.text),
-        custo: double.parse(_custoController.text),
-        imagemPath: _image?.path ?? '',
+      Vehicle vehicle = Vehicle(
+        plate: _placaController.text,
+        brand: _selectedBrand!.name,
+        model: _selectedModel!.name,
+        yearOfManufacture: int.parse(_anoFabricacaoController.text),
+        cost: double.parse(_custoController.text),
+        imagePath: _image?.path ?? '',
       );
 
-      if (widget.veiculo == null) {
-        await _dbHelper.insertVeiculo(veiculo);
+      if (widget.vehicle == null) {
+        await _dbHelper.insertVehicle(vehicle);
       } else {
         print(
-            'Atualizando veículo: ${veiculo.placa}, ${veiculo.marca}, ${veiculo.modelo}, ${veiculo.anoFabricacao}, ${veiculo.custo}');
-        await _dbHelper.updateVeiculo(veiculo);
+            'Atualizando veículo: ${vehicle.plate}, ${vehicle.brand}, ${vehicle.model}, ${vehicle.yearOfManufacture}, ${vehicle.cost}');
+        await _dbHelper.updateVehicle(vehicle);
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -160,7 +160,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          widget.veiculo == null ? 'Cadastro de Veículo' : 'Atualizar Veículo',
+          widget.vehicle == null ? 'Cadastro de Veículo' : 'Atualizar Veículo',
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -337,7 +337,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _saveVeiculo,
+                  onPressed: _saveVehicle,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.red,
@@ -345,7 +345,7 @@ class _CadastroVeiculosScreenState extends State<CadastroVeiculosScreen> {
                         RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
                   child:
-                      Text(widget.veiculo == null ? 'Cadastrar' : 'Atualizar'),
+                      Text(widget.vehicle == null ? 'Cadastrar' : 'Atualizar'),
                 ),
               )
             ],

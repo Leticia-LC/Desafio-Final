@@ -1,34 +1,32 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../Controller/Database.dart';
-import '../Model/Veiculo.dart';
-import 'Cadastro_veiculos.dart';
+import '../Model/Manager.dart';
+import 'Register_managers.dart';
 
-class VeiculosScreen extends StatefulWidget {
+class ManagersScreen extends StatefulWidget {
   @override
-  _VeiculosScreenState createState() => _VeiculosScreenState();
+  _ManagersScreenState createState() => _ManagersScreenState();
 }
 
-class _VeiculosScreenState extends State<VeiculosScreen> {
+class _ManagersScreenState extends State<ManagersScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  Future<List<Veiculo>> _fetchVeiculos() async {
-    return await _dbHelper.getVeiculos();
+  Future<List<Manager>> _fetchManagers() async {
+    return await _dbHelper.getManagers();
   }
 
-  void _deleteVeiculo(String placa) async {
-    await _dbHelper.deleteVeiculo(placa);
+  void _deleteManager(String cpf) async {
+    await _dbHelper.deleteManager(cpf);
     setState(() {});
   }
 
-  void _editVeiculo(Veiculo veiculo) async {
-    bool? veiculoAtualizado = await Navigator.push(
+  void _updateManager(Manager manager) async {
+    bool? updatedManager = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CadastroVeiculosScreen(veiculo: veiculo),
-      ),
+          builder: (context) => RegisterManagersScreen(manager: manager)),
     );
-    if (veiculoAtualizado == true) {
+    if (updatedManager == true) {
       setState(() {});
     }
   }
@@ -40,25 +38,25 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Veículos', style: TextStyle(color: Colors.black)),
+        title: Text('Gerentes', style: TextStyle(color: Colors.black)),
       ),
-      body: FutureBuilder<List<Veiculo>>(
-        future: _fetchVeiculos(),
+      body: FutureBuilder<List<Manager>>(
+        future: _fetchManagers(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Erro ao carregar os veículos'));
+            return Center(child: Text('Erro ao carregar Gerentes'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Nenhum veículo cadastrado'));
+            return Center(child: Text('Nenhum gerente cadastrado'));
           } else {
             return ListView.builder(
               padding: const EdgeInsets.all(16.0),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                final veiculo = snapshot.data![index];
+                final manager = snapshot.data![index];
                 return GestureDetector(
-                  onTap: () => _editVeiculo(veiculo),
+                  onTap: () => _updateManager(manager),
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     padding: const EdgeInsets.all(16.0),
@@ -69,38 +67,24 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 100,
-                          height: 100,
-                          color: Colors.grey[300],
-                          child: veiculo.imagemPath != null
-                              ? Image.file(
-                                  File(veiculo.imagemPath!),
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                )
-                              : Icon(Icons.image, size: 50, color: Colors.grey),
-                        ),
-                        SizedBox(width: 16.0),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Marca: ${veiculo.marca}',
+                                'Nome: ${manager.managerName}',
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(height: 8.0),
-                              Text('Modelo: ${veiculo.modelo}'),
+                              Text('Telefone: ${manager.managerphoneNumber}'),
                               SizedBox(height: 8.0),
-                              Text('Placa: ${veiculo.placa}'),
+                              Text('CPF: ${manager.cpf}'),
+                              SizedBox(height: 8.0),
+                              Text('Estado: ${manager.managerState}'),
                               SizedBox(height: 8.0),
                               Text(
-                                  'Ano de Fabricação: ${veiculo.anoFabricacao}'),
-                              SizedBox(height: 8.0),
-                              Text('Custo: ${veiculo.custo}'),
+                                  'Percentual de comissão: ${manager.percentage}%'),
                             ],
                           ),
                         ),
@@ -111,9 +95,9 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text('Deseja deletar veículo?'),
+                                  title: Text('Deletar gerente?'),
                                   content: Text(
-                                      'Tem certeza que deseja deletar o veículo de placa ${veiculo.placa}?'),
+                                      'Tem certeza que deseja deletar o gerente ${manager.managerName}?'),
                                   actions: [
                                     TextButton(
                                       child: Text('Não'),
@@ -124,7 +108,7 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
                                     TextButton(
                                       child: Text('Sim'),
                                       onPressed: () {
-                                        _deleteVeiculo(veiculo.placa);
+                                        _deleteManager(manager.cpf);
                                         Navigator.of(context).pop();
                                       },
                                     ),
@@ -145,11 +129,11 @@ class _VeiculosScreenState extends State<VeiculosScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          bool? veiculoCadastrado = await Navigator.push(
+          bool? registeredManager = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CadastroVeiculosScreen()),
+            MaterialPageRoute(builder: (context) => RegisterManagersScreen()),
           );
-          if (veiculoCadastrado == true) {
+          if (registeredManager == true) {
             setState(() {});
           }
         },

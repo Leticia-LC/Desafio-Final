@@ -1,11 +1,11 @@
-class Usuario {
+class User {
   int? id;
   String name;
   String lastname;
   String email;
   String password;
 
-  Usuario({
+  User({
     this.id,
     required this.name,
     required this.lastname,
@@ -23,8 +23,8 @@ class Usuario {
     };
   }
 
-  factory Usuario.fromMap(Map<String, dynamic> map) {
-    return Usuario(
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
       id: map['id'],
       name: map['name'],
       lastname: map['lastname'],

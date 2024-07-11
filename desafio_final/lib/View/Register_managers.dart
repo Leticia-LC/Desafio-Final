@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import '../Controller/Database.dart';
-import '../Model/Gerente.dart';
+import '../Model/Manager.dart';
 
-class CadastroGerentesScreen extends StatefulWidget {
-  final Gerente? gerente;
+class RegisterManagersScreen extends StatefulWidget {
+  final Manager? manager;
 
-  CadastroGerentesScreen({this.gerente});
+  RegisterManagersScreen({this.manager});
 
   @override
-  _CadastroGerenteScreenState createState() => _CadastroGerenteScreenState();
+  _RegisterManagersScreenState createState() => _RegisterManagersScreenState();
 }
 
-class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
+class _RegisterManagersScreenState extends State<RegisterManagersScreen> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
@@ -55,15 +55,15 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
   void initState() {
     super.initState();
     _managerNameController =
-        TextEditingController(text: widget.gerente?.managerName ?? '');
-    _cpfController = TextEditingController(text: widget.gerente?.cpf ?? '');
+        TextEditingController(text: widget.manager?.managerName ?? '');
+    _cpfController = TextEditingController(text: widget.manager?.cpf ?? '');
     _managerStateController =
-        TextEditingController(text: widget.gerente?.managerState ?? '');
+        TextEditingController(text: widget.manager?.managerState ?? '');
     _managerPhoneNumberController =
-        TextEditingController(text: widget.gerente?.managerphoneNumber ?? '');
+        TextEditingController(text: widget.manager?.managerphoneNumber ?? '');
     _percentageController = TextEditingController(
-        text: widget.gerente != null
-            ? widget.gerente!.percentage.toString()
+        text: widget.manager != null
+            ? widget.manager!.percentage.toString()
             : '');
   }
 
@@ -79,7 +79,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
 
   void _saveGerente() async {
     if (_formKey.currentState!.validate()) {
-      Gerente gerente = Gerente(
+      Manager manager = Manager(
         managerName: _managerNameController.text,
         cpf: _cpfController.text,
         managerState: _managerStateController.text,
@@ -87,13 +87,13 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
         percentage: int.parse(_percentageController.text),
       );
 
-      if (widget.gerente == null) {
-        await _dbHelper.saveGerente(gerente);
+      if (widget.manager == null) {
+        await _dbHelper.saveManager(manager);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gerente cadastrado com sucesso!')),
         );
       } else {
-        await _dbHelper.updateGerente(gerente);
+        await _dbHelper.updateManager(manager);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gerente atualizado com sucesso!')),
         );
@@ -109,7 +109,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text(widget.gerente == null
+        title: Text(widget.manager == null
             ? 'Cadastro de Gerente'
             : 'Atualizar Gerente'),
       ),
@@ -178,10 +178,10 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                 value: _managerStateController.text.isNotEmpty
                     ? _managerStateController.text
                     : null,
-                items: estados.map((String estado) {
+                items: estados.map((String state) {
                   return DropdownMenuItem<String>(
-                    value: estado,
-                    child: Text(estado),
+                    value: state,
+                    child: Text(state),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
@@ -266,7 +266,7 @@ class _CadastroGerenteScreenState extends State<CadastroGerentesScreen> {
                         RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
                   child:
-                      Text(widget.gerente == null ? 'Cadastrar' : 'Atualizar'),
+                      Text(widget.manager == null ? 'Cadastrar' : 'Atualizar'),
                 ),
               )
             ],

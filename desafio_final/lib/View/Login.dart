@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Controller/Database.dart';
-import '../Model/Usuario.dart';
+import '../Model/User.dart';
 import 'Menu.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,12 +17,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     if (_formKey.currentState!.validate()) {
-      List<Usuario> usuarios = await _dbHelper.getUsuarios();
-      Usuario? isValidUser;
+      List<User> users = await _dbHelper.getUsers();
+      User? isValidUser;
       try {
-        isValidUser = usuarios.firstWhere(
-          (user) =>
-              user.email == _emailController.text &&
+        isValidUser = users.firstWhere(
+              (user) =>
+          user.email == _emailController.text &&
               user.password == _passwordController.text,
         );
       } catch (e) {
@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MenuScreen(usuario: isValidUser!),
+            builder: (context) => MenuScreen(user: isValidUser!),
           ),
         );
       } else {
@@ -46,6 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/cadastro');
+                      Navigator.pushNamed(context, '/register');
                     },
                     child: Text(
                       'Não possui conta? Cadastre-se',

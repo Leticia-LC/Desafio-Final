@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import '../Model/Aluguel.dart';
-import '../Model/Cliente.dart';
-import '../Model/Gerente.dart';
-import '../Model/Usuario.dart';
-import '../Model/Veiculo.dart';
+import '../Model/Client.dart';
+import '../Model/Manager.dart';
+import '../Model/Rent.dart';
+import '../Model/User.dart';
+import '../Model/Vehicle.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
@@ -34,150 +34,151 @@ class DatabaseHelper {
 
   void _onCreate(Database db, int newVersion) async {
     await db.execute('''
-      CREATE TABLE Usuario(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        lastname TEXT,
-        email TEXT,
-        password TEXT
-      )
-    ''');
+    CREATE TABLE User(
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      lastname TEXT,
+      email TEXT,
+      password TEXT
+    )
+  ''');
 
     await db.execute('''
-      CREATE TABLE Cliente(
-        cnpj TEXT PRIMARY KEY,
-        clientName TEXT,
-        clientPhoneNumber INTEGER,
-        city TEXT,
-        clientState TEXT,
-        cep TEXT, 
-        managerCpf TEXT
-      )
-    ''');
+    CREATE TABLE Client(
+      cnpj TEXT PRIMARY KEY,
+      clientName TEXT,
+      clientPhoneNumber INTEGER,
+      city TEXT,
+      clientState TEXT,
+      cep TEXT, 
+      managerCpf TEXT
+    )
+  ''');
 
     await db.execute('''
-      CREATE TABLE Gerente(
-        cpf TEXT PRIMARY KEY,
-        managerName TEXT,
-        managerState TEXT,
-        managerphoneNumber TEXT,
-        percentage INTEGER
-      )
-    ''');
+    CREATE TABLE Manager(
+      cpf TEXT PRIMARY KEY,
+      managerName TEXT,
+      managerState TEXT,
+      managerphoneNumber TEXT,
+      percentage INTEGER
+    )
+  ''');
 
     await db.execute('''
-      CREATE TABLE Veiculo (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        marca TEXT,
-        modelo TEXT,
-        placa TEXT,
-        anoFabricacao INTEGER,
-        custo REAL,
-        imagemPath TEXT
-      )
-    ''');
+    CREATE TABLE Vehicle (
+      idVehicle INTEGER PRIMARY KEY AUTOINCREMENT,
+      brand TEXT,
+      model TEXT,
+      plate TEXT,
+      yearOfManufacture INTEGER,
+      cost REAL,
+      imagePath TEXT
+    )
+  ''');
 
     await db.execute('''
-      CREATE TABLE Aluguel(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cliente TEXT,
-        dataInicio INTEGER,
-        dataTermino INTEGER,
-        numeroDias INTEGER,
-        valorTotal INTEGER
-      )
-    ''');
+    CREATE TABLE Rent(
+      idRent INTEGER PRIMARY KEY AUTOINCREMENT,
+      client TEXT,
+      startDate INTEGER,
+      endDate INTEGER,
+      numberOfDays INTEGER,
+      totalValue INTEGER
+    )
+  ''');
   }
 
   void _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('''
-      ALTER TABLE Veiculo ADD COLUMN imagemPath TEXT
+      ALTER TABLE Vehicle ADD COLUMN imagePath TEXT
     ''');
 
       await db.execute('''
-      ALTER TABLE Cliente ADD COLUMN cep TEXT
+      ALTER TABLE Client ADD COLUMN cep TEXT
     ''');
     }
 
     if (oldVersion < 3) {
-      var tableInfo = await db.rawQuery('PRAGMA table_info(Cliente)');
+      var tableInfo = await db.rawQuery('PRAGMA table_info(Client)');
       var columns =
           tableInfo.map((column) => column['name'] as String).toList();
       if (!columns.contains('managerCpf')) {
         await db.execute('''
-        ALTER TABLE Cliente ADD COLUMN managerCpf TEXT
+        ALTER TABLE Client ADD COLUMN managerCpf TEXT
       ''');
       }
     }
 
     if (oldVersion < 4) {
       await db.execute('''
-        CREATE TABLE Veiculo_temp (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          marca TEXT,
-          modelo TEXT,
-          placa TEXT,
-          anoFabricacao INTEGER,
-          custo REAL,
-          imagemPath TEXT
+        CREATE TABLE Vehicle_temp (
+          idVehicle INTEGER PRIMARY KEY AUTOINCREMENT,
+          brand TEXT,
+          model TEXT,
+          plate TEXT,
+          yearOfManufacture INTEGER,
+          cost REAL,
+          imagePath TEXT
         )
       ''');
 
       await db.execute('''
-        INSERT INTO Veiculo_temp (id, marca, modelo, placa, anoFabricacao, custo, imagemPath)
-        SELECT id, marca, modelo, placa, anoFabricacao, custo, imagemPath FROM Veiculo
+        INSERT INTO Vehicle_temp (idVehicle, brand, model, plate, yearOfManufacture, cost, imagePath)
+        SELECT idVehicle, brand, model, plate, yearOfManufacture, cost, imagePath FROM Vehicle
       ''');
 
-      await db.execute('DROP TABLE Veiculo');
-      await db.execute('ALTER TABLE Veiculo_temp RENAME TO Veiculo');
+      await db.execute('DROP TABLE Vehicle');
+      await db.execute('ALTER TABLE Vehicle_temp RENAME TO Vehicle');
     }
   }
 
   // Operações para Usuário
-  Future<int> saveUsuario(Usuario usuario) async {
+  Future<int> saveUser(User user) async {
     var dbClient = await db;
-    return await dbClient.insert('Usuario', usuario.toMap());
+    return await dbClient.insert('User', user.toMap());
   }
 
-  Future<List<Usuario>> getUsuarios() async {
+  Future<List<User>> getUsers() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Usuario',
+    List<Map> maps = await dbClient.query('User',
         columns: ['id', 'name', 'lastname', 'email', 'password']);
-    List<Usuario> usuarios = [];
+    List<User> users = [];
     for (var map in maps) {
-      usuarios.add(Usuario.fromMap(map as Map<String, dynamic>));
+      users.add(User.fromMap(map as Map<String, dynamic>));
     }
-    return usuarios;
+    return users;
   }
 
-  Future<int> deleteUsuario(int id) async {
+
+  Future<int> deleteUser(int id) async {
     var dbClient = await db;
-    return await dbClient.delete('Usuario', where: 'id = ?', whereArgs: [id]);
+    return await dbClient.delete('User', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<int> updateUsuario(Usuario usuario) async {
+  Future<int> updateUser(User user) async {
     var dbClient = await db;
-    return await dbClient.update('Usuario', usuario.toMap(),
-        where: 'id = ?', whereArgs: [usuario.id]);
+    return await dbClient
+        .update('User', user.toMap(), where: 'id = ?', whereArgs: [user.id]);
   }
 
   // Operações para Cliente
-  Future<int> saveCliente(Cliente cliente) async {
+  Future<int> saveClient(Client client) async {
     var dbClient = await db;
 
-    Gerente? gerente = await getGerenteByState(cliente.clientState);
-    if (gerente != null) {
-      cliente.managerCpf = gerente.cpf;
+    Manager? manager = await getManagerByState(client.clientState);
+    if (manager != null) {
+      client.managerCpf = manager.cpf;
     }
 
-    return await dbClient.insert('Cliente', cliente.toMap(),
+    return await dbClient.insert('Client', client.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Cliente>> getClientes() async {
+  Future<List<Client>> getClients() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Cliente', columns: [
+    List<Map> maps = await dbClient.query('Client', columns: [
       'cnpj',
       'clientName',
       'clientPhoneNumber',
@@ -185,117 +186,117 @@ class DatabaseHelper {
       'clientState',
       'cep'
     ]);
-    List<Cliente> clientes = [];
+    List<Client> clients = [];
     for (var map in maps) {
-      clientes.add(Cliente.fromMap(map as Map<String, dynamic>));
+      clients.add(Client.fromMap(map as Map<String, dynamic>));
     }
-    return clientes;
+    return clients;
   }
 
-  Future<int> deleteCliente(String cnpj) async {
+  Future<int> deleteClient(String cnpj) async {
     var dbClient = await db;
     return await dbClient
-        .delete('Cliente', where: 'cnpj = ?', whereArgs: [cnpj]);
+        .delete('Client', where: 'cnpj = ?', whereArgs: [cnpj]);
   }
 
-  Future<int> updateCliente(Cliente cliente) async {
+  Future<int> updateClient(Client client) async {
     var dbClient = await db;
-    return await dbClient.update('Cliente', cliente.toMap(),
-        where: 'cnpj = ?', whereArgs: [cliente.cnpj]);
+    return await dbClient.update('Client', client.toMap(),
+        where: 'cnpj = ?', whereArgs: [client.cnpj]);
   }
 
   // Operações para Gerente
-  Future<void> saveGerente(Gerente gerente) async {
+  Future<void> saveManager(Manager manager) async {
     var dbClient = await db;
-    await dbClient.insert('Gerente', gerente.toMap(),
+    await dbClient.insert('Manager', manager.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Gerente>> getGerentes() async {
+  Future<List<Manager>> getManagers() async {
     var dbClient = await db;
-    List<Map<String, dynamic>> maps = await dbClient.query('Gerente');
-    List<Gerente> gerentes = [];
+    List<Map<String, dynamic>> maps = await dbClient.query('Manager');
+    List<Manager> managers = [];
     for (var map in maps) {
-      gerentes.add(Gerente.fromMap(map));
+      managers.add(Manager.fromMap(map));
     }
-    return gerentes;
+    return managers;
   }
 
-  Future<void> deleteGerente(String cpf) async {
+  Future<void> deleteManager(String cpf) async {
     var dbClient = await db;
-    await dbClient.delete('Gerente', where: 'cpf = ?', whereArgs: [cpf]);
+    await dbClient.delete('Manager', where: 'cpf = ?', whereArgs: [cpf]);
   }
 
-  Future<int> updateGerente(Gerente gerente) async {
+  Future<int> updateManager(Manager manager) async {
     var dbClient = await db;
     return await dbClient.update(
-      'Gerente',
-      gerente.toMap(),
+      'Manager',
+      manager.toMap(),
       where: 'cpf = ?',
-      whereArgs: [gerente.cpf],
+      whereArgs: [manager.cpf],
     );
   }
 
-  Future<Gerente?> getGerenteByState(String state) async {
+  Future<Manager?> getManagerByState(String state) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.query(
-      'Gerente',
+      'Manager',
       where: 'managerState = ?',
       whereArgs: [state],
       limit: 1,
     );
     if (result.isNotEmpty) {
-      return Gerente.fromMap(result.first);
+      return Manager.fromMap(result.first);
     }
     return null;
   }
 
   // Operações para Veículo
-  Future<int> saveVeiculo(Veiculo veiculo) async {
+  Future<int> saveVehicle(Vehicle vehicle) async {
     var dbClient = await db;
-    return await dbClient.insert('Veiculo', veiculo.toMap());
+    return await dbClient.insert('Vehicle', vehicle.toMap());
   }
 
-  Future<int> insertVeiculo(Veiculo veiculo) async {
+  Future<int> insertVehicle(Vehicle vehicle) async {
     var dbClient = await db;
-    return await dbClient.insert('Veiculo', veiculo.toMap());
+    return await dbClient.insert('Vehicle', vehicle.toMap());
   }
 
-  Future<List<Veiculo>> getVeiculos() async {
+  Future<List<Vehicle>> getVehicles() async {
     var dbClient = await db;
-    List<Map<String, dynamic>> maps = await dbClient.query('Veiculo');
+    List<Map<String, dynamic>> maps = await dbClient.query('Vehicle');
     return List.generate(maps.length, (i) {
-      return Veiculo.fromMap(maps[i]);
+      return Vehicle.fromMap(maps[i]);
     });
   }
 
-  Future<int> deleteVeiculo(String placa) async {
+  Future<int> deleteVehicle(String plate) async {
     var dbClient = await db;
     return await dbClient
-        .delete('Veiculo', where: 'placa = ?', whereArgs: [placa]);
+        .delete('Vehicle', where: 'plate = ?', whereArgs: [plate]);
   }
 
-  Future<int> updateVeiculo(Veiculo veiculo) async {
+  Future<int> updateVehicle(Vehicle vehicle) async {
     var dbClient = await db;
-    return await dbClient.update('Veiculo', veiculo.toMap(),
-        where: 'placa = ?', whereArgs: [veiculo.placa]);
+    return await dbClient.update('vehicle', vehicle.toMap(),
+        where: 'plate = ?', whereArgs: [vehicle.plate]);
   }
 
   // Operações para Aluguel
 
-  Future<Map<String, dynamic>> getAluguelDetails(int id) async {
+  Future<Map<String, dynamic>> getRentDetails(int idRent) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.rawQuery('''
-    SELECT a.id, a.cliente, a.dataInicio, a.dataTermino, a.numeroDias, a.valorTotal,
+    SELECT a.idRent, a.client, a.startDate, a.endDate, a.numberOfDays, a.TotalValue,
            c.clientName, c.clientPhoneNumber, c.city, c.clientState, c.cep, c.managerCpf,
-           v.marca, v.modelo, v.placa, v.anoFabricacao, v.custo, v.imagemPath,
+           v.brand, v.model, v.plate, v.yearOfManufacture, v.cost, v.imagePath,
            g.managerName, g.managerState, g.managerPhoneNumber, g.percentage
-    FROM Aluguel a
-    JOIN Cliente c ON a.cliente = c.cnpj
-    JOIN Veiculo v ON a.veiculo = v.id
-    JOIN Gerente g ON c.managerCpf = g.cpf
-    WHERE a.id = ?
-  ''', [id]);
+    FROM Rent a
+    JOIN Client c ON a.client = c.cnpj
+    JOIN Vehicle v ON a.vehicle = v.idVehicle
+    JOIN Manager g ON c.managerCpf = g.cpf
+    WHERE a.idRent = ?
+  ''', [idRent]);
 
     if (result.isNotEmpty) {
       return result.first;
@@ -303,36 +304,37 @@ class DatabaseHelper {
     return {};
   }
 
-  Future<int> saveAluguel(Aluguel aluguel) async {
+  Future<int> saveRent(Rent rent) async {
     var dbClient = await db;
-    return await dbClient.insert('Aluguel', aluguel.toMap());
+    return await dbClient.insert('Rent', rent.toMap());
   }
 
-  Future<List<Aluguel>> getAlugueis() async {
+  Future<List<Rent>> getRentals() async {
     var dbClient = await db;
-    List<Map> maps = await dbClient.query('Aluguel', columns: [
-      'id',
-      'cliente',
-      'dataInicio',
-      'dataTermino',
-      'numeroDias',
-      'valorTotal'
+    List<Map> maps = await dbClient.query('Rent', columns: [
+      'idRent',
+      'client',
+      'startDate',
+      'endDate',
+      'numberOfDays',
+      'totalValue'
     ]);
-    List<Aluguel> alugueis = [];
+    List<Rent> rentals = [];
     for (var map in maps) {
-      alugueis.add(Aluguel.fromMap(map as Map<String, dynamic>));
+      rentals.add(Rent.fromMap(map as Map<String, dynamic>));
     }
-    return alugueis;
+    return rentals;
   }
 
-  Future<int> deleteAluguel(int id) async {
+  Future<int> deleteRent(int idRent) async {
     var dbClient = await db;
-    return await dbClient.delete('Aluguel', where: 'id = ?', whereArgs: [id]);
+    return await dbClient
+        .delete('Rent', where: 'idRent = ?', whereArgs: [idRent]);
   }
 
-  Future<int> updateAluguel(Aluguel aluguel) async {
+  Future<int> updateRent(Rent rent) async {
     var dbClient = await db;
-    return await dbClient.update('Aluguel', aluguel.toMap(),
-        where: 'id = ?', whereArgs: [aluguel.id]);
+    return await dbClient.update('Rent', rent.toMap(),
+        where: 'idRent = ?', whereArgs: [rent.idRent]);
   }
 }

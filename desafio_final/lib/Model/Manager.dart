@@ -1,11 +1,11 @@
-class Gerente {
+class Manager {
   String managerName;
   String cpf;
   String managerState;
   String managerphoneNumber;
   int percentage;
 
-  Gerente({
+  Manager({
     required this.managerName,
     required this.cpf,
     required this.managerState,
@@ -23,8 +23,8 @@ class Gerente {
     };
   }
 
-  factory Gerente.fromMap(Map<String, dynamic> map) {
-    return Gerente(
+  factory Manager.fromMap(Map<String, dynamic> map) {
+    return Manager(
       managerName: map['managerName'],
       cpf: map['cpf'],
       managerState: map['managerState'],

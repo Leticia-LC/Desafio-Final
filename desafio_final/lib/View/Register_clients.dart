@@ -3,18 +3,18 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../Controller/Cep_controller.dart';
 import '../Controller/Cnpj_controller.dart';
 import '../Controller/Database.dart';
-import '../Model/Cliente.dart';
+import '../Model/Client.dart';
 
-class CadastroClientesScreen extends StatefulWidget {
-  final Cliente? cliente;
+class RegisterClientsScreen extends StatefulWidget {
+  final Client? client;
 
-  CadastroClientesScreen({Key? key, this.cliente}) : super(key: key);
+  RegisterClientsScreen({Key? key, this.client}) : super(key: key);
 
   @override
-  _CadastroClientesScreenState createState() => _CadastroClientesScreenState();
+  _RegisterClientsScreenState createState() => _RegisterClientsScreenState();
 }
 
-class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
+class _RegisterClientsScreenState extends State<RegisterClientsScreen> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   final CnpjController _cnpjController = CnpjController();
@@ -37,13 +37,13 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
     _stateController = TextEditingController();
     _cepControllerText = TextEditingController();
 
-    if (widget.cliente != null) {
-      _clientNameController.text = widget.cliente!.clientName;
-      _phoneController.text = widget.cliente!.clientPhoneNumber.toString();
-      _cnpjControllerText.text = widget.cliente!.cnpj;
-      _cityController.text = widget.cliente!.city;
-      _stateController.text = widget.cliente!.clientState;
-      _cepControllerText.text = widget.cliente!.cep;
+    if (widget.client != null) {
+      _clientNameController.text = widget.client!.clientName;
+      _phoneController.text = widget.client!.clientPhoneNumber.toString();
+      _cnpjControllerText.text = widget.client!.cnpj;
+      _cityController.text = widget.client!.city;
+      _stateController.text = widget.client!.clientState;
+      _cepControllerText.text = widget.client!.cep;
     }
   }
 
@@ -68,7 +68,7 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
       if (_cepController.isCepValid) {
         await _cnpjController.validateCnpjAndState(cnpj, _stateController.text);
         if (_cnpjController.isCnpjValid) {
-          _saveCliente();
+          _saveClient();
         } else {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(_cnpjController.message)));
@@ -90,10 +90,10 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
     }
   }
 
-  void _saveCliente() async {
+  void _saveClient() async {
     final number = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
 
-    Cliente cliente = Cliente(
+    Client client = Client(
       clientName: _clientNameController.text,
       clientPhoneNumber: int.parse(number),
       cnpj: _cnpjControllerText.text,
@@ -102,11 +102,11 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
       cep: _cepControllerText.text,
     );
 
-    if (widget.cliente == null) {
-      await _dbHelper.saveCliente(cliente);
+    if (widget.client == null) {
+      await _dbHelper.saveClient(client);
     } else {
-      cliente.cnpj = widget.cliente!.cnpj;
-      await _dbHelper.updateCliente(cliente);
+      client.cnpj = widget.client!.cnpj;
+      await _dbHelper.updateClient(client);
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -121,7 +121,7 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: Text(widget.cliente == null
+        title: Text(widget.client == null
             ? 'Cadastro de Cliente'
             : 'Atualizar Cliente'),
       ),
@@ -244,7 +244,7 @@ class _CadastroClientesScreenState extends State<CadastroClientesScreen> {
                         RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
                   child:
-                      Text(widget.cliente == null ? 'Cadastrar' : 'Atualizar'),
+                      Text(widget.client == null ? 'Cadastrar' : 'Atualizar'),
                 ),
               ),
             ],

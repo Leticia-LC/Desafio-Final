@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Controller/Database.dart';
-import '../Model/Usuario.dart';
+import '../Model/User.dart';
 
 class UserRegistrationScreen extends StatefulWidget {
   @override
@@ -18,14 +18,14 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
 
   void _register() async {
     if (_formKey.currentState!.validate()) {
-      Usuario newUser = Usuario(
+      User newUser = User(
         name: _nameController.text,
         lastname: _lastnameController.text,
         email: _emailController.text,
         password: _passwordController.text,
       );
 
-      await _dbHelper.saveUsuario(newUser);
+      await _dbHelper.saveUser(newUser);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Usuário cadastrado com sucesso!')),
@@ -141,7 +141,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
-                      hintText: "...........",
+                      hintText: "•••••••••",
                       border: OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(_showPassword

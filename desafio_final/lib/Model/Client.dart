@@ -1,4 +1,4 @@
-class Cliente {
+class Client {
   String cnpj;
   String clientName;
   int clientPhoneNumber;
@@ -7,7 +7,7 @@ class Cliente {
   String cep;
   String? managerCpf;
 
-  Cliente({
+  Client({
     required this.cnpj,
     required this.clientName,
     required this.clientPhoneNumber,
@@ -29,8 +29,8 @@ class Cliente {
     };
   }
 
-  factory Cliente.fromMap(Map<String, dynamic> map) {
-    return Cliente(
+  factory Client.fromMap(Map<String, dynamic> map) {
+    return Client(
       cnpj: map['cnpj'],
       clientName: map['clientName'],
       clientPhoneNumber: map['clientPhoneNumber'],

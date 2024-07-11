@@ -1,44 +1,34 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../Controller/Database.dart';
-import '../Model/Gerente.dart';
-import 'Cadastro_gerentes.dart';
+import '../Model/Vehicle.dart';
+import 'Register_vehicles.dart';
 
-class GerentesScreen extends StatefulWidget {
+class VehiclesScreen extends StatefulWidget {
   @override
-  _GerentesScreenState createState() => _GerentesScreenState();
+  _VehiclesScreenState createState() => _VehiclesScreenState();
 }
 
-class _GerentesScreenState extends State<GerentesScreen> {
+class _VehiclesScreenState extends State<VehiclesScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  Future<List<Gerente>> _fetchGerentes() async {
-    return await _dbHelper.getGerentes();
+  Future<List<Vehicle>> _fetchVehicles() async {
+    return await _dbHelper.getVehicles();
   }
 
-  void _navigateToCadastroGerentesScreen(
-      BuildContext context, Gerente? gerente) async {
-    bool? gerenteAtualizado = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => CadastroGerentesScreen(gerente: gerente)),
-    );
-    if (gerenteAtualizado == true) {
-      setState(() {});
-    }
-  }
-
-  void _deleteGerente(String cpf) async {
-    await _dbHelper.deleteGerente(cpf);
+  void _deleteVehicle(String plate) async {
+    await _dbHelper.deleteVehicle(plate);
     setState(() {});
   }
 
-  void _updateGerente(Gerente gerente) async {
-    bool? gerenteAtualizado = await Navigator.push(
+  void _editVehicle(Vehicle vehicle) async {
+    bool? updatedVehicle = await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => CadastroGerentesScreen(gerente: gerente)),
+        builder: (context) => RegisterVehiclesScreen(vehicle: vehicle),
+      ),
     );
-    if (gerenteAtualizado == true) {
+    if (updatedVehicle == true) {
       setState(() {});
     }
   }
@@ -50,26 +40,25 @@ class _GerentesScreenState extends State<GerentesScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Gerentes', style: TextStyle(color: Colors.black)),
+        title: Text('Veículos', style: TextStyle(color: Colors.black)),
       ),
-      body: FutureBuilder<List<Gerente>>(
-        future: _fetchGerentes(),
+      body: FutureBuilder<List<Vehicle>>(
+        future: _fetchVehicles(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Erro ao carregar os gerentes'));
+            return Center(child: Text('Erro ao carregar os veículos'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Nenhum gerente cadastrado'));
+            return Center(child: Text('Nenhum veículo cadastrado'));
           } else {
             return ListView.builder(
               padding: const EdgeInsets.all(16.0),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                final gerente = snapshot.data![index];
+                final vehicle = snapshot.data![index];
                 return GestureDetector(
-                  onTap: () => _updateGerente(gerente),
-                  // Chama o método de atualização ao clicar
+                  onTap: () => _editVehicle(vehicle),
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     padding: const EdgeInsets.all(16.0),
@@ -80,24 +69,38 @@ class _GerentesScreenState extends State<GerentesScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          color: Colors.grey[300],
+                          child: vehicle.imagePath != null
+                              ? Image.file(
+                            File(vehicle.imagePath!),
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          )
+                              : Icon(Icons.image, size: 50, color: Colors.grey),
+                        ),
+                        SizedBox(width: 16.0),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Nome: ${gerente.managerName}',
+                                'Marca: ${vehicle.brand}',
                                 style: TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                               SizedBox(height: 8.0),
-                              Text('Telefone: ${gerente.managerphoneNumber}'),
+                              Text('Modelo: ${vehicle.model}'),
                               SizedBox(height: 8.0),
-                              Text('CPF: ${gerente.cpf}'),
-                              SizedBox(height: 8.0),
-                              Text('Estado: ${gerente.managerState}'),
+                              Text('Placa: ${vehicle.plate}'),
                               SizedBox(height: 8.0),
                               Text(
-                                  'Percentual de Comissão: ${gerente.percentage}%'),
+                                  'Ano de Fabricação: ${vehicle.yearOfManufacture}'),
+                              SizedBox(height: 8.0),
+                              Text('Custo: ${vehicle.cost}'),
                             ],
                           ),
                         ),
@@ -108,9 +111,9 @@ class _GerentesScreenState extends State<GerentesScreen> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text('Deseja deletar gerente?'),
+                                  title: Text('Deseja deletar veículo?'),
                                   content: Text(
-                                      'Tem certeza que deseja deletar o gerente ${gerente.managerName}?'),
+                                      'Tem certeza que deseja deletar o veículo de placa ${vehicle.plate}?'),
                                   actions: [
                                     TextButton(
                                       child: Text('Não'),
@@ -121,7 +124,7 @@ class _GerentesScreenState extends State<GerentesScreen> {
                                     TextButton(
                                       child: Text('Sim'),
                                       onPressed: () {
-                                        _deleteGerente(gerente.cpf);
+                                        _deleteVehicle(vehicle.plate);
                                         Navigator.of(context).pop();
                                       },
                                     ),
@@ -142,11 +145,11 @@ class _GerentesScreenState extends State<GerentesScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          bool? gerenteCadastrado = await Navigator.push(
+          bool? vehicleRegistered = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CadastroGerentesScreen()),
+            MaterialPageRoute(builder: (context) => RegisterVehiclesScreen()),
           );
-          if (gerenteCadastrado == true) {
+          if (vehicleRegistered == true) {
             setState(() {});
           }
         },

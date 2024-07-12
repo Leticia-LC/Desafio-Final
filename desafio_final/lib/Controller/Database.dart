@@ -29,10 +29,12 @@ class DatabaseHelper {
     final path = join(databasesPath, 'app_database.db');
 
     return await openDatabase(path,
-        version: 4, onCreate: _onCreate, onUpgrade: _onUpgrade);
+        version: 6, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
   void _onCreate(Database db, int newVersion) async {
+    await db.execute('PRAGMA foreign_keys = ON;');
+
     await db.execute('''
     CREATE TABLE User(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +43,7 @@ class DatabaseHelper {
       email TEXT,
       password TEXT
     )
-  ''');
+    ''');
 
     await db.execute('''
     CREATE TABLE Client(
@@ -53,7 +55,7 @@ class DatabaseHelper {
       cep TEXT, 
       managerCpf TEXT
     )
-  ''');
+    ''');
 
     await db.execute('''
     CREATE TABLE Manager(
@@ -63,7 +65,7 @@ class DatabaseHelper {
       managerphoneNumber TEXT,
       percentage INTEGER
     )
-  ''');
+    ''');
 
     await db.execute('''
     CREATE TABLE Vehicle (
@@ -75,7 +77,7 @@ class DatabaseHelper {
       cost REAL,
       imagePath TEXT
     )
-  ''');
+    ''');
 
     await db.execute('''
     CREATE TABLE Rent(
@@ -84,9 +86,10 @@ class DatabaseHelper {
       startDate INTEGER,
       endDate INTEGER,
       numberOfDays INTEGER,
-      totalValue INTEGER
+      totalValue REAL,
+      vehiclePlate TEXT
     )
-  ''');
+    ''');
   }
 
   void _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -103,7 +106,7 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       var tableInfo = await db.rawQuery('PRAGMA table_info(Client)');
       var columns =
-          tableInfo.map((column) => column['name'] as String).toList();
+      tableInfo.map((column) => column['name'] as String).toList();
       if (!columns.contains('managerCpf')) {
         await db.execute('''
         ALTER TABLE Client ADD COLUMN managerCpf TEXT
@@ -113,26 +116,56 @@ class DatabaseHelper {
 
     if (oldVersion < 4) {
       await db.execute('''
-        CREATE TABLE Vehicle_temp (
-          idVehicle INTEGER PRIMARY KEY AUTOINCREMENT,
-          brand TEXT,
-          model TEXT,
-          plate TEXT,
-          yearOfManufacture INTEGER,
-          cost REAL,
-          imagePath TEXT
-        )
-      ''');
+      CREATE TABLE Vehicle_temp (
+        idVehicle INTEGER PRIMARY KEY AUTOINCREMENT,
+        brand TEXT,
+        model TEXT,
+        plate TEXT,
+        yearOfManufacture INTEGER,
+        cost REAL,
+        imagePath TEXT
+      )
+    ''');
 
       await db.execute('''
-        INSERT INTO Vehicle_temp (idVehicle, brand, model, plate, yearOfManufacture, cost, imagePath)
-        SELECT idVehicle, brand, model, plate, yearOfManufacture, cost, imagePath FROM Vehicle
-      ''');
+      INSERT INTO Vehicle_temp (idVehicle, brand, model, plate, yearOfManufacture, cost, imagePath)
+      SELECT idVehicle, brand, model, plate, yearOfManufacture, cost, imagePath FROM Vehicle
+    ''');
 
       await db.execute('DROP TABLE Vehicle');
       await db.execute('ALTER TABLE Vehicle_temp RENAME TO Vehicle');
     }
+
+    if (oldVersion < 5) {
+      await db.execute('''
+      ALTER TABLE Rent ADD COLUMN vehiclePlate TEXT
+    ''');
+
+      if (oldVersion < 6) {
+        await db.execute('''
+    CREATE TABLE Rent_new(
+      idRent INTEGER PRIMARY KEY AUTOINCREMENT,
+      client TEXT,
+      startDate INTEGER,
+      endDate INTEGER,
+      numberOfDays INTEGER,
+      totalValue REAL,
+      vehiclePlate TEXT
+    )
+  ''');
+
+        await db.execute('''
+    INSERT INTO Rent_new (idRent, client, startDate, endDate, numberOfDays, totalValue, vehiclePlate)
+    SELECT idRent, client, startDate, endDate, numberOfDays, totalValue, vehiclePlate FROM Rent
+  ''');
+
+        await db.execute('DROP TABLE Rent');
+        await db.execute('ALTER TABLE Rent_new RENAME TO Rent');
+      }
+
+    }
   }
+
 
   // Operações para Usuário
   Future<int> saveUser(User user) async {
@@ -150,7 +183,6 @@ class DatabaseHelper {
     }
     return users;
   }
-
 
   Future<int> deleteUser(int id) async {
     var dbClient = await db;
@@ -191,6 +223,19 @@ class DatabaseHelper {
       clients.add(Client.fromMap(map as Map<String, dynamic>));
     }
     return clients;
+  }
+
+  Future<Client?> getClientByCnpj(String cnpj) async {
+    var dbClient = await db;
+    List<Map<String, dynamic>> result = await dbClient.query(
+      'Client',
+      where: 'cnpj = ?',
+      whereArgs: [cnpj],
+    );
+    if (result.isNotEmpty) {
+      return Client.fromMap(result.first);
+    }
+    return null;
   }
 
   Future<int> deleteClient(String cnpj) async {
@@ -270,6 +315,19 @@ class DatabaseHelper {
     });
   }
 
+  Future<Vehicle?> getVehicleByPlate(String plate) async {
+    var dbClient = await db;
+    List<Map<String, dynamic>> result = await dbClient.query(
+      'Vehicle',
+      where: 'plate = ?',
+      whereArgs: [plate],
+    );
+    if (result.isNotEmpty) {
+      return Vehicle.fromMap(result.first);
+    }
+    return null;
+  }
+
   Future<int> deleteVehicle(String plate) async {
     var dbClient = await db;
     return await dbClient
@@ -287,13 +345,13 @@ class DatabaseHelper {
   Future<Map<String, dynamic>> getRentDetails(int idRent) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.rawQuery('''
-    SELECT a.idRent, a.client, a.startDate, a.endDate, a.numberOfDays, a.TotalValue,
+    SELECT a.idRent, a.client, a.startDate, a.endDate, a.numberOfDays, a.totalValue, a.vehiclePlate,
            c.clientName, c.clientPhoneNumber, c.city, c.clientState, c.cep, c.managerCpf,
            v.brand, v.model, v.plate, v.yearOfManufacture, v.cost, v.imagePath,
            g.managerName, g.managerState, g.managerPhoneNumber, g.percentage
     FROM Rent a
     JOIN Client c ON a.client = c.cnpj
-    JOIN Vehicle v ON a.vehicle = v.idVehicle
+    JOIN Vehicle v ON a.vehiclePlate = v.plate
     JOIN Manager g ON c.managerCpf = g.cpf
     WHERE a.idRent = ?
   ''', [idRent]);
@@ -317,7 +375,8 @@ class DatabaseHelper {
       'startDate',
       'endDate',
       'numberOfDays',
-      'totalValue'
+      'totalValue',
+      'vehiclePlate'
     ]);
     List<Rent> rentals = [];
     for (var map in maps) {
@@ -338,3 +397,4 @@ class DatabaseHelper {
         where: 'idRent = ?', whereArgs: [rent.idRent]);
   }
 }
+

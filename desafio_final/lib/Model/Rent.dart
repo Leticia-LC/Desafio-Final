@@ -5,14 +5,16 @@ class Rent {
   int endDate;
   int numberOfDays;
   double totalValue;
+  String vehiclePlate;
 
-  Rent ({
+  Rent({
     this.idRent,
     required this.client,
     required this.startDate,
     required this.endDate,
     required this.numberOfDays,
     required this.totalValue,
+    required this.vehiclePlate,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +25,7 @@ class Rent {
       'endDate': endDate,
       'numberOfDays': numberOfDays,
       'totalValue': totalValue,
+      'vehiclePlate': vehiclePlate,
     };
   }
 
@@ -33,7 +36,8 @@ class Rent {
       startDate: map['startDate'],
       endDate: map['endDate'],
       numberOfDays: map['numberOfDays'],
-      totalValue: map['totalValue'],
+      totalValue: map['totalValue'].toDouble(),
+      vehiclePlate: map['vehiclePlate'],
     );
   }
 }

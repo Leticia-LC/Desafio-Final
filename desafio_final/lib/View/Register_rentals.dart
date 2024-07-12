@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pdfLib;
-import 'package:path_provider/path_provider.dart';
-import 'package:share/share.dart';
-import 'dart:io';
 import '../Controller/Database.dart';
 import '../Model/Rent.dart';
 import '../Model/Client.dart';
@@ -91,7 +86,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                   );
                 }).toList(),
                 validator: (value) =>
-                    value == null ? 'Selecione um cliente' : null,
+                value == null ? 'Selecione um cliente' : null,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -119,7 +114,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                   );
                 }).toList(),
                 validator: (value) =>
-                    value == null ? 'Selecione um veículo' : null,
+                value == null ? 'Selecione um veículo' : null,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                 ),
@@ -147,7 +142,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                   setState(() {});
                 },
                 validator: (value) =>
-                    _startDate == null ? 'Selecione a data de início' : null,
+                _startDate == null ? 'Selecione a data de início' : null,
                 readOnly: true,
                 controller: TextEditingController(
                   text: _startDate != null
@@ -178,7 +173,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                   setState(() {});
                 },
                 validator: (value) =>
-                    _endDate == null ? 'Selecione a data de término' : null,
+                _endDate == null ? 'Selecione a data de término' : null,
                 readOnly: true,
                 controller: TextEditingController(
                   text: _endDate != null
@@ -199,8 +194,6 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
 
                       Manager? manager = await _dbHelper
                           .getManagerByState(_selectedClient!.clientState);
-                      double commission =
-                          totalValue * (manager!.percentage / 100);
 
                       Rent rent = Rent(
                         client: _selectedClient!.cnpj,
@@ -208,6 +201,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                         endDate: _endDate!.millisecondsSinceEpoch,
                         numberOfDays: numberOfDays,
                         totalValue: totalValue,
+                        vehiclePlate: _selectedVehicle!.plate,
                       );
 
                       if (widget.rent != null) {
@@ -225,19 +219,6 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                         );
                       }
 
-                      if (_selectedVehicle != null &&
-                          _selectedVehicle!.imagePath != null &&
-                          _selectedVehicle!.imagePath!.isNotEmpty) {
-                        final imageData = await rootBundle.load(
-                            'assets/images/${_selectedVehicle!.imagePath}');
-                        final imageBytes = imageData.buffer.asUint8List();
-                        await _generatePDF(rent, _selectedClient!,
-                            _selectedVehicle!, manager, commission, imageBytes);
-                      } else {
-                        await _generatePDF(rent, _selectedClient!,
-                            _selectedVehicle!, manager, commission, null);
-                      }
-
                       Navigator.pop(context, true);
                     }
                   },
@@ -245,7 +226,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.red,
                     shape:
-                        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                   ),
                   child: Text(widget.rent == null ? 'Cadastrar' : 'Atualizar'),
                 ),
@@ -255,70 +236,5 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _generatePDF(Rent rent, Client client, Vehicle vehicle,
-      Manager manager, double commission, Uint8List? imageBytes) async {
-    final pdf = pdfLib.Document();
-
-    // Cabeçalho
-    pdf.addPage(
-      pdfLib.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: pdfLib.EdgeInsets.all(32),
-        build: (pdfLib.Context context) => <pdfLib.Widget>[
-          pdfLib.Header(level: 0, child: pdfLib.Text('SS Automóveis')),
-          pdfLib.Header(level: 1, text: 'Comprovante de Aluguel'),
-          pdfLib.Paragraph(
-              text:
-                  'Data de Geração: ${DateFormat('dd/MM/yyyy').format(DateTime.now())}'),
-          pdfLib.SizedBox(height: 10),
-          pdfLib.Header(level: 2, text: 'Dados do Cliente'),
-          pdfLib.Paragraph(text: 'Nome: ${client.clientName}'),
-          pdfLib.Paragraph(text: 'CPF/CNPJ: ${client.cnpj}'),
-          pdfLib.SizedBox(height: 10),
-          pdfLib.Header(level: 2, text: 'Dados do Veículo'),
-          pdfLib.Paragraph(text: 'Marca: ${vehicle.brand}'),
-          pdfLib.Paragraph(text: 'Modelo: ${vehicle.model}'),
-          pdfLib.Paragraph(text: 'Placa: ${vehicle.plate}'),
-          if (imageBytes != null)
-            pdfLib.Image(
-              pdfLib.MemoryImage(imageBytes),
-              width: 200,
-              height: 200,
-            ),
-          pdfLib.SizedBox(height: 10),
-          pdfLib.Header(level: 2, text: 'Dados do Gerente'),
-          pdfLib.Paragraph(text: 'Nome: ${manager.managerName}'),
-          pdfLib.Paragraph(
-              text: 'Percentual de Comissão: ${manager.percentage}%'),
-          pdfLib.SizedBox(height: 10),
-          pdfLib.Header(level: 2, text: 'Período do Aluguel'),
-          pdfLib.Paragraph(
-              text:
-                  'Data de Início: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(rent.startDate))}'),
-          pdfLib.Paragraph(
-              text:
-                  'Data de Término: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(rent.endDate))}'),
-          pdfLib.Paragraph(text: 'Total de Dias: ${rent.numberOfDays}'),
-          pdfLib.SizedBox(height: 10),
-          pdfLib.Header(level: 2, text: 'Valores'),
-          pdfLib.Paragraph(
-              text: 'Valor da Diária: R\$ ${vehicle.cost.toStringAsFixed(2)}'),
-          pdfLib.Paragraph(
-              text:
-                  'Valor Total do Aluguel: R\$ ${rent.totalValue.toStringAsFixed(2)}'),
-          pdfLib.Paragraph(
-              text:
-                  'Comissão do Gerente: R\$ ${commission.toStringAsFixed(2)}'),
-        ],
-      ),
-    );
-
-    final output = await getTemporaryDirectory();
-    final file = File("${output.path}/comprovante_aluguel.pdf");
-    await file.writeAsBytes(await pdf.save());
-
-    Share.shareFiles([file.path], text: 'Comprovante de Aluguel');
   }
 }

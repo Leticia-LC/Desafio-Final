@@ -15,7 +15,7 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   bool _showPassword = false;
-
+  /// Método que valida o formulário e salva um novo usuário no banco de dados
   void _register() async {
     if (_formKey.currentState!.validate()) {
       User newUser = User(
@@ -37,13 +37,9 @@ class _UserRegistrationScreenState extends State<UserRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
         title: Text(
           'Cadastro',
-          style: TextStyle(color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(

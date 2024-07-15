@@ -7,6 +7,7 @@ import '../Model/Rent.dart';
 import '../Model/User.dart';
 import '../Model/Vehicle.dart';
 
+/// Classe responsável pelas operações de banco de dados
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper.internal();
 
@@ -15,7 +16,8 @@ class DatabaseHelper {
   static Database? _db;
 
   DatabaseHelper.internal();
-
+  /// Retorna a instância do banco de dados ou inicializa se não estiver
+  /// disponível
   Future<Database> get db async {
     if (_db != null) {
       return _db!;
@@ -24,6 +26,7 @@ class DatabaseHelper {
     return _db!;
   }
 
+  /// Inicializa o banco de dados, criando ou abrindo o arquivo do banco
   Future<Database> _initDb() async {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, 'app_database.db');
@@ -32,6 +35,7 @@ class DatabaseHelper {
         version: 6, onCreate: _onCreate, onUpgrade: _onUpgrade);
   }
 
+  /// Cria as tabelas do banco de dados na versão inicial
   void _onCreate(Database db, int newVersion) async {
     await db.execute('PRAGMA foreign_keys = ON;');
 
@@ -92,6 +96,7 @@ class DatabaseHelper {
     ''');
   }
 
+  /// Atualiza o banco de dados para novas versões, alterando as tabelas
   void _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('''
@@ -168,11 +173,14 @@ class DatabaseHelper {
 
 
   // Operações para Usuário
+
+  /// Insere um novo usuário no banco de dados
   Future<int> saveUser(User user) async {
     var dbClient = await db;
     return await dbClient.insert('User', user.toMap());
   }
 
+  /// Retorna a lista de todos os usuários no banco de dados
   Future<List<User>> getUsers() async {
     var dbClient = await db;
     List<Map> maps = await dbClient.query('User',
@@ -184,11 +192,13 @@ class DatabaseHelper {
     return users;
   }
 
+  /// Deleta um usuário do banco de dados pelo id
   Future<int> deleteUser(int id) async {
     var dbClient = await db;
     return await dbClient.delete('User', where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Atualiza um usuário existente no banco de dados
   Future<int> updateUser(User user) async {
     var dbClient = await db;
     return await dbClient
@@ -196,6 +206,9 @@ class DatabaseHelper {
   }
 
   // Operações para Cliente
+
+  /// Insere um novo cliente no banco de dados
+  /// Associa automaticamente um gerente baseado no estado do cliente
   Future<int> saveClient(Client client) async {
     var dbClient = await db;
 
@@ -208,6 +221,7 @@ class DatabaseHelper {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  /// Retorna a lista de todos os clientes no banco de dados
   Future<List<Client>> getClients() async {
     var dbClient = await db;
     List<Map> maps = await dbClient.query('Client', columns: [
@@ -225,6 +239,7 @@ class DatabaseHelper {
     return clients;
   }
 
+  /// Retorna um cliente pelo CNPJ
   Future<Client?> getClientByCnpj(String cnpj) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.query(
@@ -238,12 +253,14 @@ class DatabaseHelper {
     return null;
   }
 
+  /// Deleta um cliente do banco de dados pelo CNPJ
   Future<int> deleteClient(String cnpj) async {
     var dbClient = await db;
     return await dbClient
         .delete('Client', where: 'cnpj = ?', whereArgs: [cnpj]);
   }
 
+  /// Atualiza um cliente existente no banco de dados
   Future<int> updateClient(Client client) async {
     var dbClient = await db;
     return await dbClient.update('Client', client.toMap(),
@@ -251,12 +268,15 @@ class DatabaseHelper {
   }
 
   // Operações para Gerente
+
+  /// Insere um novo gerente no banco de dados
   Future<void> saveManager(Manager manager) async {
     var dbClient = await db;
     await dbClient.insert('Manager', manager.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  /// Retorna a lista de todos os gerentes no banco de dados
   Future<List<Manager>> getManagers() async {
     var dbClient = await db;
     List<Map<String, dynamic>> maps = await dbClient.query('Manager');
@@ -267,11 +287,13 @@ class DatabaseHelper {
     return managers;
   }
 
+  /// Deleta um gerente do banco de dados pelo CPF
   Future<void> deleteManager(String cpf) async {
     var dbClient = await db;
     await dbClient.delete('Manager', where: 'cpf = ?', whereArgs: [cpf]);
   }
 
+  /// Atualiza um gerente existente no banco de dados
   Future<int> updateManager(Manager manager) async {
     var dbClient = await db;
     return await dbClient.update(
@@ -282,6 +304,7 @@ class DatabaseHelper {
     );
   }
 
+  /// Retorna um gerente baseado no estado
   Future<Manager?> getManagerByState(String state) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.query(
@@ -297,16 +320,14 @@ class DatabaseHelper {
   }
 
   // Operações para Veículo
+
+  /// Insere um novo veículo no banco de dados
   Future<int> saveVehicle(Vehicle vehicle) async {
     var dbClient = await db;
     return await dbClient.insert('Vehicle', vehicle.toMap());
   }
 
-  Future<int> insertVehicle(Vehicle vehicle) async {
-    var dbClient = await db;
-    return await dbClient.insert('Vehicle', vehicle.toMap());
-  }
-
+  /// Retorna a lista de todos os veículos no banco de dados
   Future<List<Vehicle>> getVehicles() async {
     var dbClient = await db;
     List<Map<String, dynamic>> maps = await dbClient.query('Vehicle');
@@ -315,6 +336,7 @@ class DatabaseHelper {
     });
   }
 
+  /// Retorna um veículo do banco de dados com base na placa fornecida
   Future<Vehicle?> getVehicleByPlate(String plate) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.query(
@@ -328,12 +350,14 @@ class DatabaseHelper {
     return null;
   }
 
+  /// Deleta um veículo do banco de dados com base na placa fornecida
   Future<int> deleteVehicle(String plate) async {
     var dbClient = await db;
     return await dbClient
         .delete('Vehicle', where: 'plate = ?', whereArgs: [plate]);
   }
 
+  /// Atualiza um veículo no banco de dados
   Future<int> updateVehicle(Vehicle vehicle) async {
     var dbClient = await db;
     return await dbClient.update('vehicle', vehicle.toMap(),
@@ -342,6 +366,7 @@ class DatabaseHelper {
 
   // Operações para Aluguel
 
+  /// Retorna os detalhes do aluguel com base no ID do aluguel fornecido
   Future<Map<String, dynamic>> getRentDetails(int idRent) async {
     var dbClient = await db;
     List<Map<String, dynamic>> result = await dbClient.rawQuery('''
@@ -362,11 +387,13 @@ class DatabaseHelper {
     return {};
   }
 
+  /// Insere um novo aluguel no banco de dados
   Future<int> saveRent(Rent rent) async {
     var dbClient = await db;
     return await dbClient.insert('Rent', rent.toMap());
   }
 
+  /// Retorna a lista de todos os aluguéis no banco de dados
   Future<List<Rent>> getRentals() async {
     var dbClient = await db;
     List<Map> maps = await dbClient.query('Rent', columns: [
@@ -385,12 +412,14 @@ class DatabaseHelper {
     return rentals;
   }
 
+  /// Deleta um aluguel do banco de dados com base no ID do aluguel fornecido
   Future<int> deleteRent(int idRent) async {
     var dbClient = await db;
     return await dbClient
         .delete('Rent', where: 'idRent = ?', whereArgs: [idRent]);
   }
 
+  /// Atualiza um aluguel no banco de dados
   Future<int> updateRent(Rent rent) async {
     var dbClient = await db;
     return await dbClient.update('Rent', rent.toMap(),

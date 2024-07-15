@@ -6,7 +6,7 @@ class Rent {
   int numberOfDays;
   double totalValue;
   String vehiclePlate;
-
+  /// Construtor para a classe `Rent`
   Rent({
     this.idRent,
     required this.client,
@@ -16,7 +16,7 @@ class Rent {
     required this.totalValue,
     required this.vehiclePlate,
   });
-
+  /// Converte um objeto `Rent` para um map
   Map<String, dynamic> toMap() {
     return {
       'idRent': idRent,
@@ -28,7 +28,7 @@ class Rent {
       'vehiclePlate': vehiclePlate,
     };
   }
-
+  /// Cria um objeto `Rent` a partir de um map
   factory Rent.fromMap(Map<String, dynamic> map) {
     return Rent(
       idRent: map['idRent'],

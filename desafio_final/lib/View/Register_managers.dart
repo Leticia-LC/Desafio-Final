@@ -52,6 +52,8 @@ class _RegisterManagersScreenState extends State<RegisterManagersScreen> {
   ];
 
   @override
+  /// Inicializa os controladores de texto e preenche os campos com os dados
+  /// do gerente, se um gerente já existir
   void initState() {
     super.initState();
     _managerNameController =
@@ -76,7 +78,8 @@ class _RegisterManagersScreenState extends State<RegisterManagersScreen> {
     _percentageController.dispose();
     super.dispose();
   }
-
+  /// Valida o formulário, cria um objeto Manager com os dados inseridos e
+  /// salva no banco de dados
   void _saveGerente() async {
     if (_formKey.currentState!.validate()) {
       Manager manager = Manager(
@@ -106,9 +109,7 @@ class _RegisterManagersScreenState extends State<RegisterManagersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(widget.manager == null
             ? 'Cadastro de Gerente'
             : 'Atualizar Gerente'),

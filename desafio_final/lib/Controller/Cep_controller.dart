@@ -1,16 +1,20 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class CepController extends ChangeNotifier {
   bool _cepValid = false;
   String _message = '';
   Map<String, dynamic>? _cepData;
 
+  /// Retorna se o CEP é válido
   bool get isCepValid => _cepValid;
+  /// Retorna a mensagem de status
   String get message => _message;
+  /// Retorna os dados do CEP
   Map<String, dynamic>? get cepData => _cepData;
 
+  /// Valida o CEP informado consultando a API
   Future<void> validateCep(String cep) async {
     final url = Uri.parse('https://brasilapi.com.br/api/cep/v1/$cep');
 

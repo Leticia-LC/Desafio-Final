@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'Controller/Theme_provider.dart';
-import 'View/Register.dart';
 import 'View/Login.dart';
+import 'View/Register.dart';
 
 void main() {
   runApp(

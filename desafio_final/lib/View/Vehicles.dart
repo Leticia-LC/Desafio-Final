@@ -11,16 +11,17 @@ class VehiclesScreen extends StatefulWidget {
 
 class _VehiclesScreenState extends State<VehiclesScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
-
+  /// Método para buscar a lista de veículos do banco de dados
   Future<List<Vehicle>> _fetchVehicles() async {
     return await _dbHelper.getVehicles();
   }
-
+  /// Método para deletar um veículo do banco de dados
   void _deleteVehicle(String plate) async {
     await _dbHelper.deleteVehicle(plate);
     setState(() {});
   }
-
+  /// Método para editar um veículo, navegando para a tela de registro
+  /// de veículos
   void _editVehicle(Vehicle vehicle) async {
     bool? updatedVehicle = await Navigator.push(
       context,
@@ -36,11 +37,8 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Veículos', style: TextStyle(color: Colors.black)),
+        title: Text('Veículos'),
       ),
       body: FutureBuilder<List<Vehicle>>(
         future: _fetchVehicles(),
@@ -63,7 +61,7 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Row(

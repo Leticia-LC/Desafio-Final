@@ -14,7 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
   bool _showPassword = false;
-
+  /// Método para realizar o login do usuário
   void _login() async {
     if (_formKey.currentState!.validate()) {
       List<User> users = await _dbHelper.getUsers();
@@ -51,13 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: Colors.black),
         title: Text(
           'Login',
-          style: TextStyle(color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(

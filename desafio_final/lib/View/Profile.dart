@@ -5,12 +5,15 @@ import '../Controller/Theme_provider.dart';
 import '../Model/User.dart';
 import 'Login.dart';
 
+/// Tela de perfil do usuário
 class ProfileScreen extends StatefulWidget {
+  /// Usuário atual, passado para a tela de perfil
   final User user;
 
   ProfileScreen({required this.user});
 
   @override
+  /// Estado da tela de perfil
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
@@ -30,14 +33,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _initializeControllers();
   }
-
+  ///Inicializa os controladores de texto com os dados do usuário
   void _initializeControllers() {
     _nameController = TextEditingController(text: widget.user.name);
     _lastnameController = TextEditingController(text: widget.user.lastname);
     _emailController = TextEditingController(text: widget.user.email);
     _passwordController = TextEditingController(text: widget.user.password);
   }
-
+  /// Atualiza o perfil do usuário no banco de dados
   void _updateProfile() async {
     if (_formKey.currentState!.validate()) {
       User updatedUser = User(
@@ -62,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
-
+  /// Deleta a conta do usuário do banco de dados
   void _deleteAccount() async {
     if (widget.user.id != null) {
       await _dbHelper.deleteUser(widget.user.id!);
@@ -74,7 +77,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
-        (Route<dynamic> route) => false,
+            (Route<dynamic> route) => false,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -82,7 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
   }
-
+  /// Altera o tema da aplicação
   void _changeTheme(ThemeMode themeMode) {
     context.read<ThemeProvider>().setTheme(themeMode);
   }
@@ -94,170 +97,159 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text('Perfil'),
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: 20),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Nome',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira seu nome';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    controller: _lastnameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Sobrenome',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira seu sobrenome';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Email',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira seu email';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Senha',
-                      suffixIcon: IconButton(
-                        icon: Icon(_showPassword
-                            ? Icons.visibility
-                            : Icons.visibility_off),
-                        onPressed: () {
-                          setState(() {
-                            _showPassword = !_showPassword;
-                          });
-                        },
-                      ),
-                    ),
-                    obscureText: !_showPassword,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor, insira sua senha';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _updateProfile,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.red,
-                        textStyle: TextStyle(fontSize: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                      child: Text('Atualizar Perfil'),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _deleteAccount,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.red,
-                        textStyle: TextStyle(fontSize: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.zero,
-                        ),
-                      ),
-                      child: Text('Deletar Conta'),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    'Tema',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18.0,
-                    ),
-                  ),
-                  Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, child) {
-                      return Column(
-                        children: [
-                          ListTile(
-                            title: Text('Claro'),
-                            leading: Radio(
-                              value: ThemeMode.light,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (ThemeMode? value) {
-                                if (value != null) {
-                                  _changeTheme(value);
-                                }
-                              },
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Escuro'),
-                            leading: Radio(
-                              value: ThemeMode.dark,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (ThemeMode? value) {
-                                if (value != null) {
-                                  _changeTheme(value);
-                                }
-                              },
-                            ),
-                          ),
-                          ListTile(
-                            title: Text('Automático'),
-                            leading: Radio(
-                              value: ThemeMode.system,
-                              groupValue: themeProvider.themeMode,
-                              onChanged: (ThemeMode? value) {
-                                if (value != null) {
-                                  _changeTheme(value);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Nome', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                    hintText: "Nome", border: OutlineInputBorder()),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira seu nome';
+                  }
+                  return null;
+                },
               ),
-            ),
+              SizedBox(height: 10),
+              Text('Sobrenome', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              TextFormField(
+                controller: _lastnameController,
+                decoration: InputDecoration(
+                    hintText: "Sobrenome", border: OutlineInputBorder()),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira seu sobrenome';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text('Email', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                    hintText: "Email", border: OutlineInputBorder()),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira seu email';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 10),
+              Text('Senha', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  hintText: "Senha",
+                  border: OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(_showPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off),
+                    onPressed: () {
+                      setState(() {
+                        _showPassword = !_showPassword;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: !_showPassword,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor, insira sua senha';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _updateProfile,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero),
+                  ),
+                  child: Text('Atualizar Perfil'),
+                ),
+              ),
+              SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _deleteAccount,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.red,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero),
+                  ),
+                  child: Text('Deletar Conta'),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Tema',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+              Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return Column(
+                    children: [
+                      ListTile(
+                        title: Text('Claro'),
+                        leading: Radio(
+                          value: ThemeMode.light,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (ThemeMode? value) {
+                            if (value != null) {
+                              _changeTheme(value);
+                            }
+                          },
+                        ),
+                      ),
+                      ListTile(
+                        title: Text('Escuro'),
+                        leading: Radio(
+                          value: ThemeMode.dark,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (ThemeMode? value) {
+                            if (value != null) {
+                              _changeTheme(value);
+                            }
+                          },
+                        ),
+                      ),
+                      ListTile(
+                        title: Text('Automático'),
+                        leading: Radio(
+                          value: ThemeMode.system,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (ThemeMode? value) {
+                            if (value != null) {
+                              _changeTheme(value);
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),

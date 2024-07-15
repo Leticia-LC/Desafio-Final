@@ -25,14 +25,14 @@ class _RentalsScreenState extends State<RentalsScreen> {
     super.initState();
     _loadRentals();
   }
-
+  /// Carrega os aluguéis do banco de dados e atualiza o estado da tela
   Future<void> _loadRentals() async {
     var rentals = await _dbHelper.getRentals();
     setState(() {
       _rentals = rentals;
     });
   }
-
+  /// Deleta um aluguel do banco de dados e atualiza a lista de aluguéis exibida
   void _deleteRent(int idRent) async {
     await _dbHelper.deleteRent(idRent);
     setState(() {
@@ -43,11 +43,8 @@ class _RentalsScreenState extends State<RentalsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Aluguéis', style: TextStyle(color: Colors.black)),
+        title: Text('Aluguéis'),
       ),
       body: _rentals.isEmpty
           ? Center(child: Text('Nenhum aluguel registrado.'))
@@ -68,13 +65,22 @@ class _RentalsScreenState extends State<RentalsScreen> {
                 Client? client = snapshot.data;
                 return GestureDetector(
                   onTap: () {
-                    //update
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RentalRegistrationScreen(rent: rent),
+                      ),
+                    ).then((result) {
+                      if (result == true) {
+                        _loadRentals();
+                      }
+                    });
                   },
                   child: Container(
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(16),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Row(
@@ -112,67 +118,103 @@ class _RentalsScreenState extends State<RentalsScreen> {
                             final pdfLib.Document pdf = pdfLib.Document();
                             pdf.addPage(
                               pdfLib.Page(
-                                build: (pdfLib.Context context) => pdfLib.Column(
-                                  crossAxisAlignment: pdfLib.CrossAxisAlignment.start,
-                                  children: [
-                                    pdfLib.Center(
-                                      child: pdfLib.Text(
-                                        'SS Automóveis',
-                                        style: pdfLib.TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: pdfLib.FontWeight.bold,
+                                build: (pdfLib.Context context) =>
+                                    pdfLib.Column(
+                                      crossAxisAlignment:
+                                      pdfLib.CrossAxisAlignment.start,
+                                      children: [
+                                        pdfLib.Center(
+                                          child: pdfLib.Text(
+                                            'SS Automóveis',
+                                            style: pdfLib.TextStyle(
+                                              fontSize: 24,
+                                              fontWeight:
+                                              pdfLib.FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    pdfLib.Center(
-                                      child: pdfLib.Text(
-                                        'Comprovante de Aluguel',
-                                        style: pdfLib.TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: pdfLib.FontWeight.normal,
+                                        pdfLib.Center(
+                                          child: pdfLib.Text(
+                                            'Comprovante de Aluguel',
+                                            style: pdfLib.TextStyle(
+                                              fontSize: 20,
+                                              fontWeight:
+                                              pdfLib.FontWeight.normal,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                        pdfLib.SizedBox(height: 20),
+                                        pdfLib.Text(
+                                          'Data da geração: ${DateFormat('dd/MM/yyyy').format(DateTime.now())}',
+                                          style: pdfLib.TextStyle(
+                                              fontSize: 12),
+                                        ),
+                                        pdfLib.SizedBox(height: 20),
+                                        pdfLib.Text('Dados do Cliente:',
+                                            style: pdfLib.TextStyle(
+                                                fontWeight:
+                                                pdfLib.FontWeight.bold)),
+                                        pdfLib.Text(
+                                            'Nome: ${client.clientName}'),
+                                        pdfLib.Text(
+                                            'CNPJ: ${client.cnpj}'),
+                                        pdfLib.Text(
+                                            'Telefone: ${client.clientPhoneNumber}'),
+                                        pdfLib.Text(
+                                            'Endereço: ${client.cep}'),
+                                        pdfLib.SizedBox(height: 20),
+                                        pdfLib.Text('Dados do Veículo:',
+                                            style: pdfLib.TextStyle(
+                                                fontWeight:
+                                                pdfLib.FontWeight.bold)),
+                                        pdfLib.Text(
+                                            'Placa: ${vehicle!.plate}'),
+                                        pdfLib.Text(
+                                            'Marca: ${vehicle.brand}'),
+                                        pdfLib.Text(
+                                            'Modelo: ${vehicle.model}'),
+                                        pdfLib.Text(
+                                            'Ano: ${vehicle.yearOfManufacture}'),
+                                        pdfLib.SizedBox(height: 20),
+                                        if (vehicle.imagePath != null)
+                                          pdfLib.Image(
+                                            pdfLib.MemoryImage(File(
+                                                vehicle.imagePath!)
+                                                .readAsBytesSync()),
+                                            width: 200,
+                                            height: 150,
+                                          ),
+                                        pdfLib.SizedBox(height: 20),
+                                        pdfLib.Text('Dados do Gerente:',
+                                            style: pdfLib.TextStyle(
+                                                fontWeight:
+                                                pdfLib.FontWeight.bold)),
+                                        pdfLib.Text(
+                                            'Nome: ${manager!.managerName}'),
+                                        pdfLib.Text(
+                                            'Telefone: ${manager.managerphoneNumber}'),
+                                        pdfLib.Text(
+                                            'Estado: ${manager.managerState}'),
+                                        pdfLib.SizedBox(height: 20),
+                                        pdfLib.Text('Período do Aluguel:',
+                                            style: pdfLib.TextStyle(
+                                                fontWeight:
+                                                pdfLib.FontWeight.bold)),
+                                        pdfLib.Text(
+                                            'Início: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(rent.startDate))}'),
+                                        pdfLib.Text(
+                                            'Término: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(rent.endDate))}'),
+                                        pdfLib.SizedBox(height: 20),
+                                        pdfLib.Text(
+                                            'Total de Dias: ${rent.numberOfDays}'),
+                                        pdfLib.Text(
+                                            'Valor da Diária: R\$ ${(rent.totalValue / rent.numberOfDays).toStringAsFixed(2)}'),
+                                        pdfLib.Text(
+                                            'Valor Total do Aluguel: R\$ ${rent.totalValue.toStringAsFixed(2)}'),
+                                        pdfLib.Text(
+                                            'Comissão do Gerente: R\$ ${(rent.totalValue * (manager.percentage / 100)).toStringAsFixed(2)}'),
+                                      ],
                                     ),
-                                    pdfLib.SizedBox(height: 20),
-                                    pdfLib.Text(
-                                      'Data da geração: ${DateFormat('dd/MM/yyyy').format(DateTime.now())}',
-                                      style: pdfLib.TextStyle(fontSize: 12),
-                                    ),
-                                    pdfLib.SizedBox(height: 20),
-                                    pdfLib.Text('Dados do Cliente:', style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold)),
-                                    pdfLib.Text('Nome: ${client.clientName}'),
-                                    pdfLib.Text('CNPJ: ${client.cnpj}'),
-                                    pdfLib.Text('Telefone: ${client.clientPhoneNumber}'),
-                                    pdfLib.Text('Endereço: ${client.cep}'),
-                                    pdfLib.SizedBox(height: 20),
-                                    pdfLib.Text('Dados do Veículo:', style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold)),
-                                    pdfLib.Text('Placa: ${vehicle!.plate}'),
-                                    pdfLib.Text('Marca: ${vehicle.brand}'),
-                                    pdfLib.Text('Modelo: ${vehicle.model}'),
-                                    pdfLib.Text('Ano: ${vehicle.yearOfManufacture}'),
-                                    pdfLib.SizedBox(height: 20),
-                                    if (vehicle.imagePath != null)
-                                      pdfLib.Image(
-                                        pdfLib.MemoryImage(File(vehicle.imagePath!).readAsBytesSync()),
-                                        width: 200,
-                                        height: 150,
-                                      ),
-                                    pdfLib.SizedBox(height: 20),
-                                    pdfLib.Text('Dados do Gerente:', style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold)),
-                                    pdfLib.Text('Nome: ${manager!.managerName}'),
-                                    pdfLib.Text('Telefone: ${manager.managerphoneNumber}'),
-                                    pdfLib.Text('Estado: ${manager.managerState}'),
-                                    pdfLib.SizedBox(height: 20),
-                                    pdfLib.Text('Período do Aluguel:', style: pdfLib.TextStyle(fontWeight: pdfLib.FontWeight.bold)),
-                                    pdfLib.Text('Início: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(rent.startDate))}'),
-                                    pdfLib.Text('Término: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(rent.endDate))}'),
-                                    pdfLib.SizedBox(height: 20),
-                                    pdfLib.Text('Total de Dias: ${rent.numberOfDays}'),
-                                    pdfLib.Text('Valor da Diária: R\$ ${(rent.totalValue / rent.numberOfDays).toStringAsFixed(2)}'),
-                                    pdfLib.Text('Valor Total do Aluguel: R\$ ${rent.totalValue.toStringAsFixed(2)}'),
-                                    pdfLib.Text('Comissão do Gerente: R\$ ${(rent.totalValue * (manager.percentage / 100)).toStringAsFixed(2)}'),
-                                  ],
-                                ),
                               ),
                             );
 
@@ -232,18 +274,19 @@ class _RentalsScreenState extends State<RentalsScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          var result = await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => RentalRegistrationScreen()),
-          );
-          if (result == true) {
-            _loadRentals();
-          }
+                builder: (context) => RentalRegistrationScreen(rent: null)),
+          ).then((result) {
+            if (result == true) {
+              _loadRentals();
+            }
+          });
         },
-        child: Icon(Icons.add, color: Colors.white),
         backgroundColor: Colors.red,
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }

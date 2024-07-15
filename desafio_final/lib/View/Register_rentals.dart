@@ -28,19 +28,20 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
   List<Vehicle> _vehicles = [];
 
   @override
+  /// Inicializa o estado do widget e carrega a lista de clientes e veículos
   void initState() {
     super.initState();
     _loadClients();
     _loadVehicles();
   }
-
+  /// Carrega os clientes do banco de dados e atualiza a lista de clientes
   Future<void> _loadClients() async {
     var clients = await _dbHelper.getClients();
     setState(() {
       _clients = clients;
     });
   }
-
+  /// Carrega os veículos do banco de dados e atualiza a lista de veículos
   Future<void> _loadVehicles() async {
     var vehicles = await _dbHelper.getVehicles();
     setState(() {
@@ -51,9 +52,7 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(
             widget.rent == null ? 'Cadastro de Aluguel' : 'Atualizar Aluguel'),
       ),
@@ -194,6 +193,8 @@ class _RentalRegistrationScreenState extends State<RentalRegistrationScreen> {
 
                       Manager? manager = await _dbHelper
                           .getManagerByState(_selectedClient!.clientState);
+                      double commission =
+                          totalValue * (manager!.percentage / 100);
 
                       Rent rent = Rent(
                         client: _selectedClient!.cnpj,

@@ -14,7 +14,6 @@ class RegisterVehiclesScreen extends StatefulWidget {
   @override
   _RegisterVehiclesScreenState createState() => _RegisterVehiclesScreenState();
 }
-
 class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
   final _formKey = GlobalKey<FormState>();
   final DatabaseHelper _dbHelper = DatabaseHelper();
@@ -37,6 +36,7 @@ class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
   VehicleModel? _selectedModel;
 
   @override
+  /// // Inicializa os controladores com dados do veículo
   void initState() {
     super.initState();
     _placaController = TextEditingController(text: widget.vehicle?.plate ?? '');
@@ -61,7 +61,7 @@ class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
     _custoController.dispose();
     super.dispose();
   }
-
+  /// Método para carregar marcas de veículos
   Future<void> _loadBrands() async {
     try {
       List<VehicleBrand> brands = await _fipeController.getBrands();
@@ -77,7 +77,7 @@ class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
       );
     }
   }
-
+  /// Método para carregar marcas e modelos durante a edição
   Future<void> _loadBrandsAndModelsForEdit() async {
     try {
       List<VehicleBrand> brands = await _fipeController.getBrands();
@@ -138,7 +138,7 @@ class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
       );
 
       if (widget.vehicle == null) {
-        await _dbHelper.insertVehicle(vehicle);
+        await _dbHelper.saveVehicle(vehicle);
       } else {
         print(
             'Atualizando veículo: ${vehicle.plate}, ${vehicle.brand}, ${vehicle.model}, ${vehicle.yearOfManufacture}, ${vehicle.cost}');
@@ -156,12 +156,9 @@ class _RegisterVehiclesScreenState extends State<RegisterVehiclesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(
           widget.vehicle == null ? 'Cadastro de Veículo' : 'Atualizar Veículo',
-          style: TextStyle(color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(

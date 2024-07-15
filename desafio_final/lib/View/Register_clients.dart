@@ -28,6 +28,8 @@ class _RegisterClientsScreenState extends State<RegisterClientsScreen> {
   late TextEditingController _cepControllerText;
 
   @override
+  ///Inicializa os controllers de texto e preenche os campos com os dados do
+  ///cliente, se um cliente já existir
   void initState() {
     super.initState();
     _clientNameController = TextEditingController();
@@ -57,7 +59,8 @@ class _RegisterClientsScreenState extends State<RegisterClientsScreen> {
     _cepControllerText.dispose();
     super.dispose();
   }
-
+  /// Valida o formulário, verifica o CEP e CNPJ, e salva o cliente no banco
+  /// de dados
   void _validateAndSave() async {
     final cnpj = _cnpjControllerText.text.replaceAll(RegExp(r'[^\d]'), '');
     final cep = _cepControllerText.text.replaceAll(RegExp(r'[^\d]'), '');
@@ -79,7 +82,7 @@ class _RegisterClientsScreenState extends State<RegisterClientsScreen> {
       }
     }
   }
-
+  /// Valida o CEP e preenche automaticamente os campos de cidade e estado
   Future<void> _validateCepAndFillFields(String cep) async {
     await _cepController.validateCep(cep);
     if (_cepController.isCepValid) {
@@ -89,7 +92,7 @@ class _RegisterClientsScreenState extends State<RegisterClientsScreen> {
       });
     }
   }
-
+  /// Salva ou atualiza as informações do cliente no banco de dados
   void _saveClient() async {
     final number = _phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
 
@@ -118,9 +121,7 @@ class _RegisterClientsScreenState extends State<RegisterClientsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         title: Text(widget.client == null
             ? 'Cadastro de Cliente'
             : 'Atualizar Cliente'),

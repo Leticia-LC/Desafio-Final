@@ -1,10 +1,12 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
+/// Controlador responsável por fazer requisições à API
 class FipeController {
   String typeSelected = 'carros';
   VehicleBrand? brandSelected;
 
+  /// Busca todas as marcas de veículos do tipo selecionado da API
   Future<List<VehicleBrand>> getBrands() async {
     final url = 'https://parallelum.com.br/fipe/api/v1/$typeSelected/marcas';
     print('Fetching brands from URL: $url');
@@ -26,6 +28,7 @@ class FipeController {
     }
   }
 
+  /// Busca todos os modelos de veículos de uma marca específica da API
   Future<List<VehicleModel>> getModels(String brandCode) async {
     final url = 'https://parallelum.com.br/fipe/api/v1/carros/marcas/$brandCode/modelos';
     print('Fetching models from URL: $url');
@@ -49,6 +52,7 @@ class FipeController {
   }
 }
 
+/// Classe que representa uma marca de veículo
 class VehicleBrand {
   final String code;
   final String name;
@@ -58,6 +62,7 @@ class VehicleBrand {
     required this.name,
   });
 
+  /// Cria uma instância de VehicleBrand a partir de um JSON
   factory VehicleBrand.fromJson(Map<String, dynamic> json) {
     return VehicleBrand(
       code: json['codigo'].toString(),
@@ -71,6 +76,7 @@ class VehicleBrand {
   }
 }
 
+/// Classe que representa um modelo de veículo
 class VehicleModel {
   final String code;
   final String name;
@@ -80,6 +86,7 @@ class VehicleModel {
     required this.name,
   });
 
+  /// Cria uma instância de VehicleModel a partir de um JSON
   factory VehicleModel.fromJson(Map<String, dynamic> json) {
     return VehicleModel(
       code: json['codigo'].toString(),

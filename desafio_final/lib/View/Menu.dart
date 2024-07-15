@@ -14,10 +14,8 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Menu', style: TextStyle(color: Colors.black)),
+        title: Text('Menu'),
       ),
       body: Center(
         child: Column(

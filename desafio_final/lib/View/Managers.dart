@@ -10,16 +10,16 @@ class ManagersScreen extends StatefulWidget {
 
 class _ManagersScreenState extends State<ManagersScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
-
+  /// Método para buscar a lista de gerentes do banco de dados
   Future<List<Manager>> _fetchManagers() async {
     return await _dbHelper.getManagers();
   }
-
+  /// Método para deletar um gerente do banco de dados
   void _deleteManager(String cpf) async {
     await _dbHelper.deleteManager(cpf);
     setState(() {});
   }
-
+  /// Navega para a tela de registro de gerentes para editar um gerente
   void _updateManager(Manager manager) async {
     bool? updatedManager = await Navigator.push(
       context,
@@ -34,11 +34,8 @@ class _ManagersScreenState extends State<ManagersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Gerentes', style: TextStyle(color: Colors.black)),
+        title: Text('Gerentes'),
       ),
       body: FutureBuilder<List<Manager>>(
         future: _fetchManagers(),
@@ -61,7 +58,7 @@ class _ManagersScreenState extends State<ManagersScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      border: Border.all(color: Colors.grey),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Row(

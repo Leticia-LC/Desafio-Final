@@ -11,7 +11,7 @@ class ClientsScreen extends StatefulWidget {
 
 class _ClientsScreenState extends State<ClientsScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
-
+  /// Método para buscar a lista de clientes do banco de dados
   Future<List<Client>> _fetchClients() async {
     try {
       List<Client> clients = await _dbHelper.getClients();
@@ -22,7 +22,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
       return [];
     }
   }
-
+  /// Método para deletar um cliente do banco de dados
   void _deleteClient(String cnpj) async {
     try {
       await _dbHelper.deleteClient(cnpj);
@@ -31,7 +31,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
       print('Erro ao deletetar cliente: $e');
     }
   }
-
+  /// Navega para a tela de registro de clientes para editar um cliente
   void _navigateToRegisterClientsScreen(BuildContext context, Client client) async {
     bool? updatedClient = await Navigator.push(
       context,
@@ -41,7 +41,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
       setState(() {});
     }
   }
-
+  /// Navega para a tela de registro de clientes para adicionar um novo cliente
   void _navigateToNewRegisterClientsScreen(BuildContext context) async {
     bool? registeredClient = await Navigator.push(
       context,
@@ -55,11 +55,8 @@ class _ClientsScreenState extends State<ClientsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        iconTheme: IconThemeData(color: Colors.black),
-        title: Text('Clientes', style: TextStyle(color: Colors.black)),
+        title: Text('Clientes'),
       ),
       body: FutureBuilder<List<Client>>(
         future: _fetchClients(),
@@ -95,7 +92,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                           margin: const EdgeInsets.symmetric(vertical: 8.0),
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
-                            color: Colors.grey[200],
+                            border: Border.all(color: Colors.grey),
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                           child: Row(

@@ -6,7 +6,7 @@ class Client {
   String clientState;
   String cep;
   String? managerCpf;
-
+  /// Construtor para a classe `Client`
   Client({
     required this.cnpj,
     required this.clientName,
@@ -16,7 +16,7 @@ class Client {
     required this.cep,
     this.managerCpf,
   });
-
+  /// Converte um objeto `Client` para um map
   Map<String, dynamic> toMap() {
     return {
       'cnpj': cnpj,
@@ -28,7 +28,7 @@ class Client {
       'managerCpf': managerCpf,
     };
   }
-
+  /// Cria um objeto `Client` a partir de um map
   factory Client.fromMap(Map<String, dynamic> map) {
     return Client(
       cnpj: map['cnpj'],
